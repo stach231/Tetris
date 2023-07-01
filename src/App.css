@@ -1,0 +1,24 @@
+#root {
+  width: 380px;
+  height: 520px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+#header {
+  width: 240px;
+  height: 80px;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
