@@ -41,3 +41,14 @@
   width: 220px;
   height: 420px;
 }
+
+.pixel{
+  width: 20px;
+  height: 20px;
+  border: 1px solid black;
+  float: left;
+}
+
+div ul{
+  width: 260px;
+}

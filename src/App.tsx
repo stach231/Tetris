@@ -13,7 +13,7 @@ function App() {
           <img src="src/images/tetris.png" alt="tetris" />
         </header>
       </div>
-      <Tetris></Tetris>
+      <Tetris className="pixel"></Tetris>
     </div>
   );
 }
