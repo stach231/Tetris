@@ -6,19 +6,38 @@
 }
 
 #header {
-  width: 240px;
+  width: 380px;
   height: 80px;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+#header-title {
+  width: 240px;
+  height: 80px;
+  font-size: 50px;
+  border: solid black;
+  border-width: 2px 0px 2px 2px;
+  float: left;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+#header-title span {
+  padding-top: 10px;
+  padding-bottom: auto;
 }
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+
+#header-image {
+  width: 140px;
+  height: 80px;
+  border: solid black;
+  border-width: 2px 2px 2px 0px;
+  float: left;
+  
+}
+
+#header-image img{
+  margin: 10px;
+}
+
+#play{
+  width: 220px;
+  height: 420px;
 }
