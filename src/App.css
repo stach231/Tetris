@@ -1,21 +1,30 @@
+:root{
+  background-color: #292929;
+  overflow: hidden;
+}
+
 #root {
-  width: 380px;
-  height: 520px;
-  margin: 0 auto;
+  display: flex;
+  width: auto;
+  height: auto;
   text-align: center;
+  background-color: #292929;
+}
+
+#root::before{
+  background-color: #292929;
 }
 
 #header {
   width: 380px;
   height: 80px;
+  border: 2px solid black;
 }
 
 #header-title {
   width: 240px;
-  height: 80px;
+  height: 76px;
   font-size: 50px;
-  border: solid black;
-  border-width: 2px 0px 2px 2px;
   float: left;
 }
 
@@ -25,12 +34,9 @@
 }
 
 #header-image {
-  width: 140px;
-  height: 80px;
-  border: solid black;
-  border-width: 2px 2px 2px 0px;
+  width: 136px;
+  height: 76px;
   float: left;
-  
 }
 
 #header-image img{
@@ -49,6 +55,87 @@
   float: left;
 }
 
-div ul{
-  width: 260px;
+#container{
+  width: 384px;
+  border: 2px solid black;
+  height: 544px;
+  background-color: #ddd;
+  margin: 20px auto 0px auto;
+  box-shadow: 0 0 40px rgba(0,255,0,0.6);
+}
+
+#container img{
+  background-color: inherit;
+  background-color: white;
+}
+
+.tetris{
+  float: left;
+  width: 240px;
+  height: 440px;
+  padding-left: 20px;
+  padding-top: 20px;
+  margin-right: 0px;
+}
+
+#sidebar{
+  float: left;
+  width: 140px;
+  height: 544px;
+}
+
+#score{
+  width: 140px;
+  height: 80px;
+  padding-top: 20px;
+}
+
+#score span{
+  float: left;
+  margin-left: 20px;
+}
+
+#next-block{
+  float: left;
+  width: 100px;
+  height: 100px;
+  border: 2px solid black;
+  margin-left: 20px;
+  background-color: white;
+}
+
+#buttons{
+  width: 120px;
+  margin-top: 50px;
+  float: left;
+}
+
+#up-button{
+  height: 30px;
+}
+
+#middle-buttons img, #up-button img, #bottom-button img{
+  width: 30px;
+  height: 30px;
+  border: 2px solid black;
+}
+
+#middle-buttons img:first-child, #up-button img, #bottom-button img{
+  margin-left: 25px;
+}
+
+#turn-button{
+  float: left;
+  margin-top: 50px;
+}
+
+#turn-button img{
+  margin-left: 40px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.shadow{
+  box-shadow: 0 0 0px rgba(0,0,0,0.6);
 }

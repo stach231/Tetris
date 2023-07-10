@@ -558,7 +558,7 @@ const Tetris = ({ className }: Props) => {
   }, []);
 
   return (
-    <ul>
+    <div className="tetris">
       {pixelsColorsRef.current.map((item) => (
         <Pixel
           className="pixel"
@@ -567,7 +567,7 @@ const Tetris = ({ className }: Props) => {
           y={item[3]}
         ></Pixel>
       ))}
-    </ul>
+    </div>
   );
 };
 
