@@ -13,7 +13,7 @@ interface Props {
 class Block {
   color: string = "#fff";
   x: number = 0;
-  y: number = 10;
+  y: number = 11;
   shape: number[][] = [];
   shapeId: number = 0;
   constructor(color: string, x: number, shape: number[][], shapeId: number) {
@@ -31,9 +31,10 @@ const Tetris = ({ className }: Props) => {
   const pixelsColorsRef = useRef(pixelsColors);
   const [oldCoords, setOldCoords] = useState<[number, number][]>([]);
   const oldCoordsRef = useRef<[number, number][]>([]);
-  const [block, setBlock] = useState(0);
   const blockScreenRef = useRef<Block | null>(null);
   const [shape, setShape] = useState(createBlock());
+  const [gameOver, setGameOver] = useState(0);
+  const gameOverRef = useRef(gameOver);
 
   function setUpPixelColors() {
     const newPixelsColors: [string, number, number, number][] = [];
@@ -44,6 +45,52 @@ const Tetris = ({ className }: Props) => {
     }
     pixelsColorsRef.current = newPixelsColors;
     return [...newPixelsColors];
+  }
+
+  function playGameOver() {
+    let i = 230;
+    let tribe = 0;
+    const over = setInterval(() => {
+      console.log(`I: ${i}`);
+      const pixel = [...pixelsColorsRef.current];
+      if (tribe === 0) pixel[i][0] = "#777";
+      else if (tribe === 1) pixel[i][0] = "#fff";
+      setPixelColors(pixel);
+      i--;
+      if (i === -1 && tribe === 0) {
+        i = 230;
+        tribe = 1;
+      } else if (i === -1 && tribe === 1) {
+        clearInterval(over);
+      }
+    }, 5);
+  }
+
+  function checkOver() {
+    console.log("Check Over 1");
+    const old: [number, number][] = [];
+    blockScreenRef.current?.shape.forEach((item) => {
+      old.push([
+        item[0] + blockScreenRef.current!.x,
+        item[1] + blockScreenRef.current!.y,
+      ]);
+    });
+    console.log(`Check Over 2: ${old.length}`);
+    old.forEach((item) => {
+      pixelsColorsRef.current.forEach((item2) => {
+        console.log(
+          `Check Over 3: I1 - ${item}, I2 - ${item2}, G - ${gameOver} S - ${
+            blockScreenRef.current?.shape
+          }: X:${blockScreenRef.current!.x},Y:${blockScreenRef.current!.y}`
+        );
+        if (
+          (item[0] === item2[2] && item[1] === item2[3] && item2[1] === 2) ||
+          item[1] > 10
+        ) {
+          gameOverRef.current = 1;
+        }
+      });
+    });
   }
 
   function createBlock() {
@@ -109,6 +156,7 @@ const Tetris = ({ className }: Props) => {
     } else if (drawShape === 4) {
       x = 5 - Math.floor(Math.random() * 10);
     }
+
     return new Block(color, x, blockShape, drawShape);
   }
 
@@ -153,17 +201,16 @@ const Tetris = ({ className }: Props) => {
     ];
 
     let blockScreen: Block = createBlock();
-    setBlock(1);
 
     window.addEventListener("keydown", (event) => {
       if (event.code === "ArrowLeft") {
-        console.log("ArrowLeft");
+        //console.log("ArrowLeft");
         moveBlock(-1);
       } else if (event.code === "ArrowRight") {
-        console.log("ArrowRight");
+        //console.log("ArrowRight");
         moveBlock(1);
       } else if (event.code === "Space") {
-        console.log("Space");
+        //console.log("Space");
         rotateBlock();
       }
     });
@@ -171,6 +218,44 @@ const Tetris = ({ className }: Props) => {
     blockScreenRef.current = blockScreen;
 
     return blockScreen;
+  }
+
+  function checkLine() {
+    const colors: number[] = [];
+    let [color, line, flag] = ["", 10, true];
+    pixelsColorsRef.current.forEach((item, index) => {
+      console.log(`C: ${color} L: ${line} F: ${flag}`);
+      if (item[3] !== line) {
+        console.log(`New line ${item[3]} Color: ${color}`);
+
+        line = item[3];
+        color = "";
+        flag = true;
+      }
+      if (item[0] === "#fff" || (color !== "" && item[0] !== color)) {
+        console.log(`Linia ${line}: Brak zgodności`);
+        flag = false;
+      }
+      color = item[0];
+      if (index % 11 === 10 && flag) {
+        if (color != "" && flag === true) {
+          colors.push(line);
+          console.log(`Dodano do tabeli ${line}`);
+        }
+      }
+    });
+    console.log(`Długość colors: ${colors.length}`);
+    colors.forEach((item) => {
+      console.log(`Działania na tabeli: ${(-item + 10) * 11}`);
+      pixelsColorsRef.current.splice((-item + 10) * 11, 11);
+      pixelsColorsRef.current.forEach((item2, index) => {
+        if (item2[3] > item) item2[3]--;
+      });
+      for (let i = 0; i < 11; i++) {
+        pixelsColorsRef.current.unshift(["#fff", 0, 5 - i, 10]);
+      }
+    });
+    setPixelColors([...pixelsColorsRef.current]);
   }
 
   function moveBlock(direct: number) {
@@ -189,56 +274,87 @@ const Tetris = ({ className }: Props) => {
     oldCoordsRef.current = old;
     //console.log(`-2 ${oldCoordsRef.current.length}`);
 
-    console.log(
-      `Przesunięcie: ${blockScreenRef.current!.y} ${
-        oldCoordsRef.current.length
-      }`
-    );
+    //console.log(
+    //  `Przesunięcie: ${blockScreenRef.current!.y} ${
+    //    oldCoordsRef.current.length
+    //  }`
+    //);
     let flag = true;
     const newCoords: number[][] = [];
     if (direct === 0) {
-      //console.log("Przesunięcie 0");
       oldCoordsRef.current.forEach((coord) => {
-        //console.log(`Przesunięcie 01: ${coord[0]} ${coord[1]}`);
         if (coord[1] - 1 < -10) flag = false;
         else if (coord[1] <= 11) newCoords.push([coord[0], coord[1] - 1]);
       });
-      //console.log(`Przesunięcie 02: ${newCoords.length} ${flag}`);
+      //console.log(`Flaga1: ${flag}`);
       if (flag) {
-        //console.log(`Przesunięcie 1 ;; ${newCoords.length}`);
-        newCoords.forEach((item) => {
-          //console.log(`New: ${item[0]}, ${item[1]} ; ${(item[1] + 10) * 11 + (item[0] + 5)} Wartość: ${pixelsColorsRef.current[(item[1] + 10) * 11 + (item[0] + 5)]} ;; `);
-          if (
-            pixelsColorsRef.current[(item[1] + 10) * 11 + (item[0] + 5)][1] ===
-            2
-          ) {
-            flag = false;
-          }
-        });
-        //console.log(`Przesunięcie 1 // ${newCoords.length}`);
-      }
-      if (flag) {
-        //console.log("Przesunięcie 2");
-        pixelsColorsRef.current.forEach((item) => {
-          if (item[1] === 1) {
-            //console.log("Równe 1");
-            item[1] = 0;
-            item[0] = "#fff";
-          }
-        });
-        //console.log(`Koordy: ${newCoords.length}`);
-        newCoords.forEach((item) => {
-          //console.log("Zmiana na 1 (0)");
-          pixelsColorsRef.current.forEach((item2) => {
-            //console.log("Zmiana na 1 (1)");
-            if (item[0] === item2[2] && item[1] === item2[3]) {
-              //console.log("Zmiana na 1 (2)");
-              item2[1] = 1;
-              item2[0] = blockScreenRef.current!.color;
+        //console.log(`Flaga2: ${flag}`);
+        if (flag) {
+          pixelsColorsRef.current.forEach((item) => {
+            if (item[1] === 1) {
+              item[1] = 0;
+              item[0] = "#fff";
             }
           });
+          newCoords.forEach((item) => {
+            pixelsColorsRef.current.forEach((item2) => {
+              //console.log("Zmiana na 1 (1)");
+              if (
+                item[0] === item2[2] &&
+                item[1] === item2[3] &&
+                item2[1] === 2
+              ) {
+                //console.log("F11");
+                flag = false;
+              }
+            });
+          });
+          //console.log(`Flag 22: ${flag}`);
+          if (flag) {
+            //console.log("F1");
+            newCoords.forEach((item) => {
+              pixelsColorsRef.current.forEach((item2) => {
+                if (item[0] === item2[2] && item[1] === item2[3]) {
+                  item2[1] = 1;
+                  item2[0] = blockScreenRef.current!.color;
+                }
+              });
+            });
+          } else {
+            //console.log("F2");
+            checkOver();
+            oldCoordsRef.current.forEach((item) => {
+              pixelsColorsRef.current.forEach((item2) => {
+                if (item[0] === item2[2] && item[1] === item2[3]) {
+                  //console.log("F21");
+                  item2[1] = 2;
+                  item2[0] = blockScreenRef.current!.color;
+                }
+              });
+            });
+            console.log("CheckLine 1");
+            checkLine();
+            blockScreenRef.current = createBlock();
+            setShape(blockScreenRef.current);
+          }
+          //console.log(`Flaga3: ${flag}`);
+          if (flag) {
+            blockScreenRef.current!.y--;
+          } else {
+            flag = true;
+          }
+        }
+      } else {
+        pixelsColorsRef.current.map((item) => {
+          if (item[1] === 1) {
+            item[1] = 2;
+          }
         });
-        blockScreenRef.current!.y--;
+        console.log("CheckLine 2");
+        checkLine();
+        blockScreenRef.current = createBlock();
+        setShape(blockScreenRef.current);
+        flag = true;
       }
     } else if (direct === 1) {
       oldCoordsRef.current.forEach((coord) => {
@@ -253,14 +369,33 @@ const Tetris = ({ className }: Props) => {
           }
         });
         newCoords.forEach((item) => {
-          pixelsColorsRef.current.forEach((item2) => {
-            if (item[0] === item2[2] && item[1] === item2[3]) {
-              item2[1] = 1;
-              item2[0] = blockScreenRef.current!.color;
-            }
-          });
+          if (
+            pixelsColorsRef.current[(-item[1] + 10) * 11 + (item[0] + 5)][1] ===
+            2
+          ) {
+            flag = false;
+          }
         });
-        blockScreenRef.current!.x++;
+        if (flag) {
+          newCoords.forEach((item) => {
+            pixelsColorsRef.current.forEach((item2) => {
+              if (item[0] === item2[2] && item[1] === item2[3]) {
+                item2[1] = 1;
+                item2[0] = blockScreenRef.current!.color;
+              }
+            });
+          });
+          blockScreenRef.current!.x++;
+        } else {
+          oldCoordsRef.current.forEach((item) => {
+            pixelsColorsRef.current.forEach((item2) => {
+              if (item[0] === item2[2] && item[1] === item2[3]) {
+                item2[1] = 1;
+                item2[0] = blockScreenRef.current!.color;
+              }
+            });
+          });
+        }
       }
     } else if (direct === -1) {
       oldCoordsRef.current.forEach((coord) => {
@@ -274,15 +409,35 @@ const Tetris = ({ className }: Props) => {
             item[0] = "#fff";
           }
         });
+
         newCoords.forEach((item) => {
-          pixelsColorsRef.current.forEach((item2) => {
-            if (item[0] === item2[2] && item[1] === item2[3]) {
-              item2[1] = 1;
-              item2[0] = blockScreenRef.current!.color;
-            }
-          });
+          if (
+            pixelsColorsRef.current[(-item[1] + 10) * 11 + (item[0] + 5)][1] ===
+            2
+          ) {
+            flag = false;
+          }
         });
-        blockScreenRef.current!.x--;
+        if (flag) {
+          newCoords.forEach((item) => {
+            pixelsColorsRef.current.forEach((item2) => {
+              if (item[0] === item2[2] && item[1] === item2[3]) {
+                item2[1] = 1;
+                item2[0] = blockScreenRef.current!.color;
+              }
+            });
+          });
+          blockScreenRef.current!.x--;
+        } else {
+          oldCoordsRef.current.forEach((item) => {
+            pixelsColorsRef.current.forEach((item2) => {
+              if (item[0] === item2[2] && item[1] === item2[3]) {
+                item2[1] = 1;
+                item2[0] = blockScreenRef.current!.color;
+              }
+            });
+          });
+        }
       }
     }
 
@@ -290,7 +445,7 @@ const Tetris = ({ className }: Props) => {
   }
 
   function rotateBlock() {
-    console.log("Rotate block");
+    //console.log("Rotate block");
 
     const newShapeCoords: [number, number][] = [];
     blockScreenRef.current?.shape.forEach((item) => {
@@ -316,47 +471,64 @@ const Tetris = ({ className }: Props) => {
     const moveX2 = Math.max(maxX - 5, 0);
     const moveY = Math.max(-10 - minY, 0);
 
-    console.log(`Shape kordy ${newShapeCoords}`);
+    //console.log(`Shape kordy ${newShapeCoords}`);
 
     newShapeCoords.forEach((item) => {
-      item[0] = item[0];
-      item[1] = item[1];
       old.push([
         item[0] + blockScreenRef.current!.x + moveX1 - moveX2,
-        item[1] + blockScreenRef.current!.y + moveY,
+        item[1] + blockScreenRef.current!.y,
       ]);
     });
 
-    blockScreenRef.current!.x += moveX1 - moveX2;
-    blockScreenRef.current!.y += moveY;
+    //console.log(`Move ${moveX1} ${moveX2}`);
 
-    setOldCoords(old);
-    oldCoordsRef.current = old;
-
-    console.log(
-      `Przesunięcie: ${blockScreenRef.current!.y} ${
-        oldCoordsRef.current.length
-      }`
-    );
-
-    if (flag) {
-      pixelsColorsRef.current.forEach((item) => {
-        if (item[1] === 1) {
-          item[1] = 0;
-          item[0] = "#fff";
+    old.forEach((item) => {
+      pixelsColorsRef.current.forEach((item2) => {
+        if (
+          item[0] === item2[2] &&
+          item[1] === item2[3] &&
+          item2[0] !== "#fff" &&
+          item2[1] === 2
+        ) {
+          flag = false;
         }
       });
-      oldCoordsRef.current.forEach((item) => {
-        pixelsColorsRef.current.forEach((item2) => {
-          if (item[0] === item2[2] && item[1] === item2[3]) {
-            item2[1] = 1;
-            item2[0] = blockScreenRef.current!.color;
+    });
+    //console.log(`Flag1: ${flag}`);
+    if (flag) {
+      blockScreenRef.current!.x += moveX1 - moveX2;
+
+      if (moveY === 0) {
+        setOldCoords(old);
+        oldCoordsRef.current = old;
+      }
+
+      //console.log(
+      //  `Przesunięcie: ${blockScreenRef.current!.y} ${
+      //    oldCoordsRef.current.length
+      //  }`
+      //);
+
+      if (flag && moveY === 0) {
+        pixelsColorsRef.current.forEach((item) => {
+          if (item[1] === 1) {
+            item[1] = 0;
+            item[0] = "#fff";
           }
         });
-      });
+        oldCoordsRef.current.forEach((item) => {
+          pixelsColorsRef.current.forEach((item2) => {
+            if (item[0] === item2[2] && item[1] === item2[3]) {
+              item2[1] = 1;
+              item2[0] = blockScreenRef.current!.color;
+            }
+          });
+        });
+      }
+      if (moveY == 0) {
+        blockScreenRef.current!.shape = newShapeCoords;
+      }
     }
-
-    blockScreenRef.current!.shape = newShapeCoords;
   }
 
   const [test, setTest] = useState(0);
@@ -372,16 +544,22 @@ const Tetris = ({ className }: Props) => {
       setPixelColors(setUpPixelColors());
       return () => {
         setShape(startGame());
-        setInterval(() => {
-          moveBlock(0);
-        }, 1000);
+        const play = setInterval(() => {
+          if (gameOverRef.current === 0) {
+            moveBlock(0);
+          } else if (gameOverRef.current === 1) {
+            playGameOver();
+            window.removeEventListener;
+            gameOverRef.current = 2;
+          }
+        }, 400);
       };
     }
   }, []);
 
   return (
     <ul>
-      {pixelsColors.map((item) => (
+      {pixelsColorsRef.current.map((item) => (
         <Pixel
           className="pixel"
           color={item[0]}
