@@ -38,8 +38,18 @@ const Tetris = ({ className }: Props) => {
   const [gameOver, setGameOver] = useState(0);
   const gameOverRef = useRef(gameOver);
   const [period, setPeriod] = useState(0);
-  const [minY, setMinY] = useState<number[]>([
-    -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10,
+  const [minY, setMinY] = useState<number[][]>([
+    [-10],
+    [-10],
+    [-10],
+    [-10],
+    [-10],
+    [-10],
+    [-10],
+    [-10],
+    [-10],
+    [-10],
+    [-10],
   ]);
   const minYRef = useRef(minY);
 
@@ -52,68 +62,6 @@ const Tetris = ({ className }: Props) => {
     }
     pixelsColorsRef.current = newPixelsColors;
     return [...newPixelsColors];
-  }
-
-  function setUpBlock() {
-    //console.log(`UpBlock: ${blockScreenRef.current?.upBlocks}`);
-    for (const key in blockScreenRef.current?.upBlocks) {
-      const oldKey = parseInt(key) + blockScreenRef.current.x + 5;
-
-      if (blockScreenRef.current?.upBlocks.hasOwnProperty(key)) {
-        minYRef.current[oldKey] =
-          blockScreenRef.current?.upBlocks[parseInt(key)] +
-          blockScreenRef.current.y;
-      }
-      console.log(`${key} ${oldKey} ${minYRef.current[oldKey]}`);
-    }
-
-    /*for (const key in blockScreenRef.current?.upBlocks) {
-      const oldKey = parseInt(key) + blockScreenRef.current.x + 5;
-      console.log(
-        `Key: ${parseInt(key)}, minYKey: ${
-          minY[oldKey]
-        }, oldKey: ${oldKey}, value: ${
-          blockScreenRef.current.upBlocks[parseInt(key)]
-        }`
-      );
-      if (blockScreenRef.current?.upBlocks.hasOwnProperty(key)) {
-        minYRef.current.map((item, index) => {
-          /*console.log(
-              `Item ${item} Index MinY: ${index} OldKey: ${oldKey} blockScreenRef.current!.upBlocks[parseInt(key)] ${
-                blockScreenRef.current!.upBlocks[parseInt(key)]
-              } blockScreenRef.current!.y ${blockScreenRef.current!.y} Suma: ${
-                blockScreenRef.current!.upBlocks[parseInt(key)] +
-                blockScreenRef.current!.y
-              } ${index === oldKey} ${blockScreenRef.current!.y > item}`
-            );*/
-    /*const upBlock: number[] = [];
-          if (index === oldKey) {
-            let tribe = false;
-
-            for (let i = index; i < 231; i += 11) {
-              if (pixelsColorsRef.current[i][0] !== "#fff" && !tribe) {
-                tribe = true;
-                upBlock.concat([...upBlock], [Math.floor(-i / 11) + 10]);
-              }
-              if (pixelsColorsRef.current[i][0] === "#fff" && tribe) {
-                tribe = false;
-              }
-            }
-          }
-          minYRef.current = upBlock;
-
-          /* &&
-            blockScreenRef.current!.upBlocks[parseInt(key)] +
-              blockScreenRef.current!.y >
-              item
-              ? (minYRef.current[index] =
-                  blockScreenRef.current!.upBlocks[parseInt(key)] +
-                  blockScreenRef.current!.y)
-              : minYRef.current[index];*/
-    /*});
-      }
-    }
-    */
   }
 
   function playGameOver() {
@@ -229,6 +177,44 @@ const Tetris = ({ className }: Props) => {
     return new Block(color, x, blockShape, drawShape);
   }
 
+  function setUpBlock() {
+    console.log(minYRef.current[0]);
+    //console.log(`UpBlock: ${blockScreenRef.current?.upBlocks}`);
+    for (const key in blockScreenRef.current?.upBlocks) {
+      const oldKey = parseInt(key) + blockScreenRef.current.x + 5;
+
+      let tribe = 0;
+      const upBlocks: number[] = [];
+      for (let i = oldKey; i < 231; i += 11) {
+        if (tribe === 0 && pixelsColorsRef.current[i][0] !== "#fff") {
+          console.log(
+            `I: ${i} OldKey: ${oldKey} Tribe 0 to 1 ${Math.ceil(-i / 11) + 10}`
+          );
+          tribe = 1;
+          upBlocks.push(Math.ceil(-i / 11) + 10);
+        } else if (tribe === 1 && pixelsColorsRef.current[i][0] === "#fff") {
+          console.log(
+            `I: ${i} OldKey: ${oldKey} Tribe 1 to 0 ${Math.ceil(-i / 11) + 10}`
+          );
+          tribe = 0;
+        }
+      }
+      if (tribe === 0) upBlocks.push(-10);
+      console.log(`${minYRef.current[0]} ${upBlocks} ${parseInt(key)}`);
+      minYRef.current[oldKey] = upBlocks;
+      console.log(minYRef.current[0]);
+      console.log(minYRef.current);
+      /*
+      if (blockScreenRef.current?.upBlocks.hasOwnProperty(key)) {
+        minYRef.current[oldKey] =
+          blockScreenRef.current?.upBlocks[parseInt(key)] +
+          blockScreenRef.current.y;
+      }
+      console.log(`${key} ${oldKey} ${minYRef.current[oldKey]}`);
+      */
+    }
+  }
+
   function pushBlock() {
     const diff: [number, number][] = [];
     let minDiff = 22;
@@ -240,9 +226,19 @@ const Tetris = ({ className }: Props) => {
       ]);
     });
     for (const key in blockScreenRef.current!.bottomBlocks) {
+      console.log(
+        `Bottom: ${blockScreenRef.current!.bottomBlocks} Key: ${parseInt(key)}`
+      );
       const oldKey = parseInt(key) + blockScreenRef.current!.x + 5;
-      let tribe = 0;
-      minYRef.current.forEach((item: number) =>
+      let [tribe, minDiff] = [0, 22];
+      const oldY =
+        blockScreenRef.current!.bottomBlocks[key] + blockScreenRef.current!.y;
+      const upBlock = minYRef.current[oldKey]
+        .filter((item) => item <= oldY)
+        .sort()
+        .reverse()[0];
+      minDiff = oldY - upBlock < minDiff ? oldY - upBlock : minDiff;
+      /*minYRef.current.forEach((item: number) =>
         blockScreenRef.current!.bottomBlocks[key] +
           blockScreenRef.current!.y -
           minYRef.current[oldKey] <
@@ -252,7 +248,7 @@ const Tetris = ({ className }: Props) => {
               blockScreenRef.current!.y -
               minYRef.current[oldKey])
           : minDiff
-      );
+      );*/
     }
     const newCoords: [number, number][] = oldCoords.map((item) => [
       item[0],
@@ -378,8 +374,7 @@ const Tetris = ({ className }: Props) => {
 
     colors.forEach((item) => {
       //console.log(`Działania na tabeli: ${(-item + 10) * 11}`);
-
-      minYRef.current.map((item2, index) => (item === item2 ? item2-- : item2));
+      //minYRef.current.map((item2, index) => (item === item2 ? item2-- : item2));
 
       pixelsColorsRef.current.splice((-item + 10) * 11, 11);
       pixelsColorsRef.current.forEach((item2, index) => {
@@ -388,6 +383,7 @@ const Tetris = ({ className }: Props) => {
       for (let i = 0; i < 11; i++) {
         pixelsColorsRef.current.unshift(["#fff", 0, 5 - i, 10]);
       }
+      setUpBlock();
     });
     console.log(`MinY: ${minY}`);
     setPixelColors([...pixelsColorsRef.current]);
@@ -459,7 +455,6 @@ const Tetris = ({ className }: Props) => {
             //console.log("F2");
             checkOver();
 
-            setUpBlock();
             oldCoordsRef.current.forEach((item) => {
               pixelsColorsRef.current.forEach((item2) => {
                 if (item[0] === item2[2] && item[1] === item2[3]) {
@@ -469,6 +464,8 @@ const Tetris = ({ className }: Props) => {
                 }
               });
             });
+
+            setUpBlock();
             //console.log("CheckLine 1");
             checkLine();
             blockScreenRef.current = createBlock();
@@ -508,11 +505,14 @@ const Tetris = ({ className }: Props) => {
           }
         });
         newCoords.forEach((item) => {
-          if (
-            pixelsColorsRef.current[(-item[1] + 10) * 11 + (item[0] + 5)][1] ===
-            2
-          ) {
-            flag = false;
+          if (item[3] < 11) {
+            if (
+              pixelsColorsRef.current[
+                (-item[1] + 10) * 11 + (item[0] + 5)
+              ][1] === 2
+            ) {
+              flag = false;
+            }
           }
         });
         if (flag) {
