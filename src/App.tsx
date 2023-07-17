@@ -12,6 +12,7 @@ function App() {
       if (event.code === "ArrowLeft") setClick(1);
       else if (event.code === "ArrowRight") setClick(2);
       else if (event.code === "Space") setClick(3);
+      else if (event.code === "ArrowDown") setClick(4);
     });
   }, []);
 
@@ -54,7 +55,11 @@ function App() {
               )}
             </div>
             <div id="bottom-button">
-              <img src="src/images/down.png"></img>
+              {click != 4 ? (
+                <img src="src/images/down.png"></img>
+              ) : (
+                <img src="src/images/down.png" className="shadow"></img>
+              )}
             </div>
           </div>
           <div id="turn-button">

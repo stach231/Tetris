@@ -16,6 +16,8 @@ class Block {
   y: number = 11;
   shape: number[][] = [];
   shapeId: number = 0;
+  upBlocks: Record<number, number> = {};
+  bottomBlocks: Record<number, number> = {};
   constructor(color: string, x: number, shape: number[][], shapeId: number) {
     this.color = color;
     this.x = x;
@@ -35,6 +37,11 @@ const Tetris = ({ className }: Props) => {
   const [shape, setShape] = useState(createBlock());
   const [gameOver, setGameOver] = useState(0);
   const gameOverRef = useRef(gameOver);
+  const [period, setPeriod] = useState(0);
+  const [minY, setMinY] = useState<number[]>([
+    -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10,
+  ]);
+  const minYRef = useRef(minY);
 
   function setUpPixelColors() {
     const newPixelsColors: [string, number, number, number][] = [];
@@ -47,11 +54,73 @@ const Tetris = ({ className }: Props) => {
     return [...newPixelsColors];
   }
 
+  function setUpBlock() {
+    //console.log(`UpBlock: ${blockScreenRef.current?.upBlocks}`);
+    for (const key in blockScreenRef.current?.upBlocks) {
+      const oldKey = parseInt(key) + blockScreenRef.current.x + 5;
+
+      if (blockScreenRef.current?.upBlocks.hasOwnProperty(key)) {
+        minYRef.current[oldKey] =
+          blockScreenRef.current?.upBlocks[parseInt(key)] +
+          blockScreenRef.current.y;
+      }
+      console.log(`${key} ${oldKey} ${minYRef.current[oldKey]}`);
+    }
+
+    /*for (const key in blockScreenRef.current?.upBlocks) {
+      const oldKey = parseInt(key) + blockScreenRef.current.x + 5;
+      console.log(
+        `Key: ${parseInt(key)}, minYKey: ${
+          minY[oldKey]
+        }, oldKey: ${oldKey}, value: ${
+          blockScreenRef.current.upBlocks[parseInt(key)]
+        }`
+      );
+      if (blockScreenRef.current?.upBlocks.hasOwnProperty(key)) {
+        minYRef.current.map((item, index) => {
+          /*console.log(
+              `Item ${item} Index MinY: ${index} OldKey: ${oldKey} blockScreenRef.current!.upBlocks[parseInt(key)] ${
+                blockScreenRef.current!.upBlocks[parseInt(key)]
+              } blockScreenRef.current!.y ${blockScreenRef.current!.y} Suma: ${
+                blockScreenRef.current!.upBlocks[parseInt(key)] +
+                blockScreenRef.current!.y
+              } ${index === oldKey} ${blockScreenRef.current!.y > item}`
+            );*/
+    /*const upBlock: number[] = [];
+          if (index === oldKey) {
+            let tribe = false;
+
+            for (let i = index; i < 231; i += 11) {
+              if (pixelsColorsRef.current[i][0] !== "#fff" && !tribe) {
+                tribe = true;
+                upBlock.concat([...upBlock], [Math.floor(-i / 11) + 10]);
+              }
+              if (pixelsColorsRef.current[i][0] === "#fff" && tribe) {
+                tribe = false;
+              }
+            }
+          }
+          minYRef.current = upBlock;
+
+          /* &&
+            blockScreenRef.current!.upBlocks[parseInt(key)] +
+              blockScreenRef.current!.y >
+              item
+              ? (minYRef.current[index] =
+                  blockScreenRef.current!.upBlocks[parseInt(key)] +
+                  blockScreenRef.current!.y)
+              : minYRef.current[index];*/
+    /*});
+      }
+    }
+    */
+  }
+
   function playGameOver() {
     let i = 230;
     let tribe = 0;
     const over = setInterval(() => {
-      console.log(`I: ${i}`);
+      //console.log(`I: ${i}`);
       const pixel = [...pixelsColorsRef.current];
       if (tribe === 0) pixel[i][0] = "#777";
       else if (tribe === 1) pixel[i][0] = "#fff";
@@ -67,7 +136,7 @@ const Tetris = ({ className }: Props) => {
   }
 
   function checkOver() {
-    console.log("Check Over 1");
+    //console.log("Check Over 1");
     const old: [number, number][] = [];
     blockScreenRef.current?.shape.forEach((item) => {
       old.push([
@@ -75,14 +144,14 @@ const Tetris = ({ className }: Props) => {
         item[1] + blockScreenRef.current!.y,
       ]);
     });
-    console.log(`Check Over 2: ${old.length}`);
+    //console.log(`Check Over 2: ${old.length}`);
     old.forEach((item) => {
       pixelsColorsRef.current.forEach((item2) => {
-        console.log(
-          `Check Over 3: I1 - ${item}, I2 - ${item2}, G - ${gameOver} S - ${
-            blockScreenRef.current?.shape
-          }: X:${blockScreenRef.current!.x},Y:${blockScreenRef.current!.y}`
-        );
+        //console.log(
+        //  `Check Over 3: I1 - ${item}, I2 - ${item2}, G - ${gameOver} S - ${
+        //    blockScreenRef.current?.shape
+        //  }: X:${blockScreenRef.current!.x},Y:${blockScreenRef.current!.y}`
+        //);
         if (
           (item[0] === item2[2] && item[1] === item2[3] && item2[1] === 2) ||
           item[1] > 10
@@ -160,6 +229,61 @@ const Tetris = ({ className }: Props) => {
     return new Block(color, x, blockShape, drawShape);
   }
 
+  function pushBlock() {
+    const diff: [number, number][] = [];
+    let minDiff = 22;
+    const oldCoords: [number, number][] = [];
+    blockScreenRef.current!.shape.forEach((item) => {
+      oldCoords.push([
+        item[0] + blockScreenRef.current!.x,
+        item[1] + blockScreenRef.current!.y,
+      ]);
+    });
+    for (const key in blockScreenRef.current!.bottomBlocks) {
+      const oldKey = parseInt(key) + blockScreenRef.current!.x + 5;
+      let tribe = 0;
+      minYRef.current.forEach((item: number) =>
+        blockScreenRef.current!.bottomBlocks[key] +
+          blockScreenRef.current!.y -
+          minYRef.current[oldKey] <
+        minDiff
+          ? (minDiff =
+              blockScreenRef.current!.bottomBlocks[key] +
+              blockScreenRef.current!.y -
+              minYRef.current[oldKey])
+          : minDiff
+      );
+    }
+    const newCoords: [number, number][] = oldCoords.map((item) => [
+      item[0],
+      item[1] - minDiff,
+    ]);
+    console.log(`MinDiff: ${minDiff}`);
+    pixelsColorsRef.current.forEach((item, index) => {
+      if (item[1] === 1) {
+        pixelsColorsRef.current[index][1] = 0;
+        pixelsColorsRef.current[index][0] = "#fff";
+      }
+    });
+    pixelsColorsRef.current.forEach((item, index) => {
+      newCoords.forEach((item2) => {
+        item[2] === item2[0] && item[3] === item2[1]
+          ? (pixelsColorsRef.current[index] = [
+              blockScreenRef.current!.color,
+              2,
+              pixelsColorsRef.current[index][2],
+              pixelsColorsRef.current[index][3],
+            ])
+          : pixelsColorsRef.current[index];
+      });
+    });
+    blockScreenRef.current!.y -= minDiff - 1;
+    setUpBlock();
+    checkLine();
+    blockScreenRef.current = createBlock();
+    setShape(blockScreenRef.current);
+  }
+
   function startGame() {
     const shapes = [
       [
@@ -212,8 +336,14 @@ const Tetris = ({ className }: Props) => {
       } else if (event.code === "Space") {
         //console.log("Space");
         rotateBlock();
+      } else if (event.code === "ArrowDown") {
+        setPeriod(100);
+      } else if (event.code === "Enter") {
+        pushBlock();
       }
     });
+
+    window.addEventListener("keyup", () => setPeriod(400));
 
     blockScreenRef.current = blockScreen;
 
@@ -224,29 +354,33 @@ const Tetris = ({ className }: Props) => {
     const colors: number[] = [];
     let [color, line, flag] = ["", 10, true];
     pixelsColorsRef.current.forEach((item, index) => {
-      console.log(`C: ${color} L: ${line} F: ${flag}`);
+      //console.log(`C: ${color} L: ${line} F: ${flag}`);
       if (item[3] !== line) {
-        console.log(`New line ${item[3]} Color: ${color}`);
+        //console.log(`New line ${item[3]} Color: ${color}`);
 
         line = item[3];
         color = "";
         flag = true;
       }
       if (item[0] === "#fff" || (color !== "" && item[0] !== color)) {
-        console.log(`Linia ${line}: Brak zgodności`);
+        //console.log(`Linia ${line}: Brak zgodności`);
         flag = false;
       }
       color = item[0];
       if (index % 11 === 10 && flag) {
         if (color != "" && flag === true) {
           colors.push(line);
-          console.log(`Dodano do tabeli ${line}`);
+          //console.log(`Dodano do tabeli ${line}`);
         }
       }
     });
-    console.log(`Długość colors: ${colors.length}`);
+    //console.log(`Długość colors: ${colors.length}`);
+
     colors.forEach((item) => {
-      console.log(`Działania na tabeli: ${(-item + 10) * 11}`);
+      //console.log(`Działania na tabeli: ${(-item + 10) * 11}`);
+
+      minYRef.current.map((item2, index) => (item === item2 ? item2-- : item2));
+
       pixelsColorsRef.current.splice((-item + 10) * 11, 11);
       pixelsColorsRef.current.forEach((item2, index) => {
         if (item2[3] > item) item2[3]--;
@@ -255,6 +389,7 @@ const Tetris = ({ className }: Props) => {
         pixelsColorsRef.current.unshift(["#fff", 0, 5 - i, 10]);
       }
     });
+    console.log(`MinY: ${minY}`);
     setPixelColors([...pixelsColorsRef.current]);
   }
 
@@ -323,6 +458,8 @@ const Tetris = ({ className }: Props) => {
           } else {
             //console.log("F2");
             checkOver();
+
+            setUpBlock();
             oldCoordsRef.current.forEach((item) => {
               pixelsColorsRef.current.forEach((item2) => {
                 if (item[0] === item2[2] && item[1] === item2[3]) {
@@ -332,7 +469,7 @@ const Tetris = ({ className }: Props) => {
                 }
               });
             });
-            console.log("CheckLine 1");
+            //console.log("CheckLine 1");
             checkLine();
             blockScreenRef.current = createBlock();
             setShape(blockScreenRef.current);
@@ -345,12 +482,14 @@ const Tetris = ({ className }: Props) => {
           }
         }
       } else {
+        setUpBlock();
+
         pixelsColorsRef.current.map((item) => {
           if (item[1] === 1) {
             item[1] = 2;
           }
         });
-        console.log("CheckLine 2");
+        //console.log("CheckLine 2");
         checkLine();
         blockScreenRef.current = createBlock();
         setShape(blockScreenRef.current);
@@ -411,11 +550,14 @@ const Tetris = ({ className }: Props) => {
         });
 
         newCoords.forEach((item) => {
-          if (
-            pixelsColorsRef.current[(-item[1] + 10) * 11 + (item[0] + 5)][1] ===
-            2
-          ) {
-            flag = false;
+          if (item[3] < 11) {
+            if (
+              pixelsColorsRef.current[
+                (-item[1] + 10) * 11 + (item[0] + 5)
+              ][1] === 2
+            ) {
+              flag = false;
+            }
           }
         });
         if (flag) {
@@ -535,8 +677,130 @@ const Tetris = ({ className }: Props) => {
   const testRef = useRef(test);
 
   useEffect(() => {
+    if (blockScreenRef.current?.shape) {
+      //console.log(
+      //  `[UP!!!] : ${Object.values(blockScreenRef.current!.upBlocks)}`
+      //);
+      //console.log(
+      //  `[BOTTOM!!!] : ${Object.values(blockScreenRef.current!.bottomBlocks)}`
+      //);
+      const upBlock: Record<number, number> =
+        blockScreenRef.current!.shape.reduce(
+          (accumulator: Record<number, number>, [x, y], index) => {
+            //console.log(
+            //  `123 ${!accumulator[x]} X: ${x} Accumulator[x]: ${accumulator[x]}`
+            //);
+            if (!(x in accumulator) || y > accumulator[x]) {
+              //console.log(
+              //  `\nZatwierdzono: Kształt: ${
+              //    blockScreenRef.current!.shape
+              //  } Index: ${index} X: ${x} Y:${y} !(x in accumulator): ${!(
+              //    x in accumulator
+              //  )} y > accumulator[x]: ${
+              //    y > accumulator[x]
+              //  } Czy tablica?: ${Array.isArray(
+              //    blockScreenRef.current!.upBlocks
+              //  )} AC?: ${Array.isArray(accumulator)}\n`
+              //);
+              accumulator[x] = y;
+            } else {
+              //console.log(
+              //  `\n NIE!!! zatwierdzono: Kształt: ${
+              //    blockScreenRef.current!.shape
+              //  } Index: ${index} X: ${x} Y:${y} !(x in accumulator): ${!(
+              //    x in accumulator
+              //  )} y > accumulator[x]: ${
+              //    y > accumulator[x]
+              //  } Czy tablica?: ${Array.isArray(
+              //    blockScreenRef.current!.bottomBlocks
+              //  )} AC?: ${Array.isArray(accumulator)}\n`
+              //);
+            }
+            //console.log(
+            //  `UP x:${x} y:${y} AC:${accumulator} ACX:${
+            //    accumulator[x]
+            //  } T: ${typeof accumulator}`
+            //);
+            return accumulator;
+          },
+          {}
+        );
+
+      blockScreenRef.current!.upBlocks = upBlock;
+
+      const bottomBlocks: Record<number, number> =
+        blockScreenRef.current!.shape.reduce(
+          (accumulator: Record<number, number>, [x, y], index) => {
+            //console.log(
+            //  `123 ${!accumulator[x]} X: ${x} Accumulator[x]: ${accumulator[x]}`
+            //);
+            if (!(x in accumulator) || y < accumulator[x]) {
+              //console.log(
+              //  `\nZatwierdzono: Kształt: ${
+              //    blockScreenRef.current!.shape
+              //  } Index: ${index} X: ${x} Y:${y} !(x in accumulator): ${!(
+              //    x in accumulator
+              //  )} y < accumulator[x]: ${
+              //    y < accumulator[x]
+              //  } Czy tablica?: ${Array.isArray(
+              //    blockScreenRef.current!.bottomBlocks
+              //  )} AC?: ${Array.isArray(accumulator)}\n`
+              //);
+              accumulator[x] = y;
+            } else {
+              //console.log(
+              //  `\n NIE!!! zatwierdzono: Kształt: ${
+              //    blockScreenRef.current!.shape
+              //  } Index: ${index} X: ${x} Y:${y} !(x in accumulator): ${!(
+              //    x in accumulator
+              //  )} y < accumulator[x]: ${
+              //    y > accumulator[x]
+              //  } Czy tablica?: ${Array.isArray(
+              //    blockScreenRef.current!.bottomBlocks
+              //  )} AC?: ${Array.isArray(accumulator)}\n`
+              //);
+            }
+            //console.log(
+            //  `BOTTOM Id:${index}, x:${x} y:${y} AC:${accumulator} ACX:${accumulator[x]};`
+            //);
+            return accumulator;
+          },
+          {}
+        );
+
+      blockScreenRef.current!.bottomBlocks = bottomBlocks;
+
+      //console.log(blockScreenRef.current!.upBlocks);
+      //console.log(blockScreenRef.current!.bottomBlocks);
+
+      //console.log(
+      //  `Shape: ${blockScreenRef.current!.shape}: Up: [${Object.values(
+      //    blockScreenRef.current!.upBlocks
+      //  )}], Bottom: [${Object.values(blockScreenRef.current!.bottomBlocks)}] `
+      //);
+      //console.log(" ");
+      //console.log(" ");
+    }
+  }, [blockScreenRef.current?.shape]);
+
+  useEffect(() => {
     console.log(`Początkowo: ${test}`);
   }, []);
+
+  useEffect(() => {
+    const play = setInterval(() => {
+      if (gameOverRef.current === 0) {
+        moveBlock(0);
+      } else if (gameOverRef.current === 1) {
+        playGameOver();
+        window.removeEventListener;
+        gameOverRef.current = 2;
+      }
+    }, period);
+    return () => {
+      clearInterval(play);
+    };
+  }, [period]);
 
   useEffect(() => {
     if (testRef.current === 0) {
@@ -544,15 +808,7 @@ const Tetris = ({ className }: Props) => {
       setPixelColors(setUpPixelColors());
       return () => {
         setShape(startGame());
-        const play = setInterval(() => {
-          if (gameOverRef.current === 0) {
-            moveBlock(0);
-          } else if (gameOverRef.current === 1) {
-            playGameOver();
-            window.removeEventListener;
-            gameOverRef.current = 2;
-          }
-        }, 400);
+        setPeriod(400);
       };
     }
   }, []);
