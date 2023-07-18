@@ -39,17 +39,17 @@ const Tetris = ({ className }: Props) => {
   const gameOverRef = useRef(gameOver);
   const [period, setPeriod] = useState(0);
   const [minY, setMinY] = useState<number[][]>([
-    [-10],
-    [-10],
-    [-10],
-    [-10],
-    [-10],
-    [-10],
-    [-10],
-    [-10],
-    [-10],
-    [-10],
-    [-10],
+    [-11],
+    [-11],
+    [-11],
+    [-11],
+    [-11],
+    [-11],
+    [-11],
+    [-11],
+    [-11],
+    [-11],
+    [-11],
   ]);
   const minYRef = useRef(minY);
 
@@ -178,7 +178,7 @@ const Tetris = ({ className }: Props) => {
   }
 
   function setUpBlock() {
-    console.log(minYRef.current[0]);
+    //console.log(minYRef.current[0]);
     //console.log(`UpBlock: ${blockScreenRef.current?.upBlocks}`);
     for (const key in blockScreenRef.current?.upBlocks) {
       const oldKey = parseInt(key) + blockScreenRef.current.x + 5;
@@ -187,23 +187,23 @@ const Tetris = ({ className }: Props) => {
       const upBlocks: number[] = [];
       for (let i = oldKey; i < 231; i += 11) {
         if (tribe === 0 && pixelsColorsRef.current[i][0] !== "#fff") {
-          console.log(
-            `I: ${i} OldKey: ${oldKey} Tribe 0 to 1 ${Math.ceil(-i / 11) + 10}`
-          );
+          //console.log(
+          //  `I: ${i} OldKey: ${oldKey} Tribe 0 to 1 ${Math.ceil(-i / 11) + 10}`
+          //);
           tribe = 1;
           upBlocks.push(Math.ceil(-i / 11) + 10);
         } else if (tribe === 1 && pixelsColorsRef.current[i][0] === "#fff") {
-          console.log(
-            `I: ${i} OldKey: ${oldKey} Tribe 1 to 0 ${Math.ceil(-i / 11) + 10}`
-          );
+          //console.log(
+          //  `I: ${i} OldKey: ${oldKey} Tribe 1 to 0 ${Math.ceil(-i / 11) + 10}`
+          //);
           tribe = 0;
         }
       }
-      if (tribe === 0) upBlocks.push(-10);
-      console.log(`${minYRef.current[0]} ${upBlocks} ${parseInt(key)}`);
+      if (tribe === 0) upBlocks.push(-11);
+      console.log(`${minYRef.current[0]} [${upBlocks}] ${parseInt(key)}`);
       minYRef.current[oldKey] = upBlocks;
-      console.log(minYRef.current[0]);
-      console.log(minYRef.current);
+      //console.log(minYRef.current[0]);
+      //console.log(minYRef.current);
       /*
       if (blockScreenRef.current?.upBlocks.hasOwnProperty(key)) {
         minYRef.current[oldKey] =
@@ -216,7 +216,6 @@ const Tetris = ({ className }: Props) => {
   }
 
   function pushBlock() {
-    const diff: [number, number][] = [];
     let minDiff = 22;
     const oldCoords: [number, number][] = [];
     blockScreenRef.current!.shape.forEach((item) => {
@@ -230,29 +229,20 @@ const Tetris = ({ className }: Props) => {
         `Bottom: ${blockScreenRef.current!.bottomBlocks} Key: ${parseInt(key)}`
       );
       const oldKey = parseInt(key) + blockScreenRef.current!.x + 5;
-      let [tribe, minDiff] = [0, 22];
       const oldY =
         blockScreenRef.current!.bottomBlocks[key] + blockScreenRef.current!.y;
       const upBlock = minYRef.current[oldKey]
         .filter((item) => item <= oldY)
-        .sort()
+        .sort((a, b) => a - b)
         .reverse()[0];
+
       minDiff = oldY - upBlock < minDiff ? oldY - upBlock : minDiff;
-      /*minYRef.current.forEach((item: number) =>
-        blockScreenRef.current!.bottomBlocks[key] +
-          blockScreenRef.current!.y -
-          minYRef.current[oldKey] <
-        minDiff
-          ? (minDiff =
-              blockScreenRef.current!.bottomBlocks[key] +
-              blockScreenRef.current!.y -
-              minYRef.current[oldKey])
-          : minDiff
-      );*/
+      console.log(`upBlock: ${upBlock} OldY: ${oldY} MinDiff: ${minDiff}`);
     }
+    console.log(`MinDiff 2: ${minDiff}`);
     const newCoords: [number, number][] = oldCoords.map((item) => [
       item[0],
-      item[1] - minDiff,
+      item[1] - minDiff + 1,
     ]);
     console.log(`MinDiff: ${minDiff}`);
     pixelsColorsRef.current.forEach((item, index) => {
@@ -385,7 +375,10 @@ const Tetris = ({ className }: Props) => {
       }
       setUpBlock();
     });
-    console.log(`MinY: ${minY}`);
+    console.log("MinY: ");
+    minYRef.current.forEach((item, index) => {
+      console.log(`${index}: ${item}`);
+    });
     setPixelColors([...pixelsColorsRef.current]);
   }
 
@@ -505,7 +498,7 @@ const Tetris = ({ className }: Props) => {
           }
         });
         newCoords.forEach((item) => {
-          if (item[3] < 11) {
+          if (item[1] < 11) {
             if (
               pixelsColorsRef.current[
                 (-item[1] + 10) * 11 + (item[0] + 5)
@@ -550,7 +543,7 @@ const Tetris = ({ className }: Props) => {
         });
 
         newCoords.forEach((item) => {
-          if (item[3] < 11) {
+          if (item[1] < 11) {
             if (
               pixelsColorsRef.current[
                 (-item[1] + 10) * 11 + (item[0] + 5)
@@ -582,8 +575,6 @@ const Tetris = ({ className }: Props) => {
         }
       }
     }
-
-    //console.log(`Kształt2: ${blockScreenRef.current!.shape}`);
   }
 
   function rotateBlock() {
