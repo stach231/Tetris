@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Tetris from "./components/Tetris";
 
@@ -6,6 +6,46 @@ function App() {
   const class1 = "text-bg-light";
 
   const [click, setClick] = useState(0);
+  const [score, setScore] = useState(0);
+  const [shape, setShape] = useState(-1);
+  const shapeRef = useRef(shape);
+
+  const shapes = [
+    "0-blue",
+    "0-green",
+    "0-red",
+    "0-yellow",
+    "1-blue",
+    "1-green",
+    "1-red",
+    "1-yellow",
+    "2-blue",
+    "2-green",
+    "2-red",
+    "2-yellow",
+    "3-blue",
+    "3-green",
+    "3-red",
+    "3-yellow",
+    "4-blue",
+    "4-green",
+    "4-red",
+    "4-yellow",
+    "5-blue",
+    "5-green",
+    "5-red",
+    "5-yellow",
+  ];
+
+  const handleScoreChange = (score: number) => {
+    setScore(score);
+  };
+
+  const handleShapeChange = (shape1: number) => {
+    setShape(shape1);
+    shapeRef.current = shape1;
+    console.log(`Shape: Atr: ${shape1} Ref: ${shapeRef.current}`);
+  };
 
   useEffect(() => {
     window.addEventListener("keydown", (event) => {
@@ -27,15 +67,27 @@ function App() {
         </header>
       </div>
       <div id="rest">
-        <Tetris className="pixel"></Tetris>
+        <Tetris
+          className="pixel"
+          onScoreChange={handleScoreChange}
+          onShapeChange={handleShapeChange}
+        ></Tetris>
         <div id="sidebar">
           <div id="score">
             <span>PUNKTY</span>
-            <span>100</span>
+            <span>{score}</span>
           </div>
           <div id="next">
             <span>NASTĘPNY BLOK</span>
-            <div id="next-block"></div>
+            <div id="next-block">
+              <img
+                src={
+                  shape !== -1
+                    ? `src/images/Shapes/${shapes[shapeRef.current]}.png`
+                    : ""
+                }
+              ></img>
+            </div>
           </div>
           <div id="buttons">
             <div id="up-button">
