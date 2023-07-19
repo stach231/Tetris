@@ -9,6 +9,7 @@ function App() {
   const [score, setScore] = useState(0);
   const [shape, setShape] = useState(-1);
   const shapeRef = useRef(shape);
+  const [start, setStart] = useState(false);
 
   const shapes = [
     "0-blue",
@@ -47,6 +48,10 @@ function App() {
     console.log(`Shape: Atr: ${shape1} Ref: ${shapeRef.current}`);
   };
 
+  const clickStart = () => {
+    start === false ? setStart(true) : setStart(false);
+  };
+
   useEffect(() => {
     window.addEventListener("keydown", (event) => {
       if (event.code === "ArrowLeft") setClick(1);
@@ -71,6 +76,7 @@ function App() {
           className="pixel"
           onScoreChange={handleScoreChange}
           onShapeChange={handleShapeChange}
+          start={start}
         ></Tetris>
         <div id="sidebar">
           <div id="score">
@@ -121,7 +127,7 @@ function App() {
               <img src="src/images/turn_right.png" className="shadow"></img>
             )}
           </div>
-          <button id="start" className="btn btn-light">
+          <button id="start" className="btn btn-light" onClick={clickStart}>
             START
           </button>
         </div>

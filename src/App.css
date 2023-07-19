@@ -125,6 +125,12 @@
   background-color: white;
 }
 
+#next-block img{
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 #buttons{
   position: relative;
   top: 50px;
