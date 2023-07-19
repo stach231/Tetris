@@ -3,8 +3,6 @@ import "./App.css";
 import Tetris from "./components/Tetris";
 
 function App() {
-  const class1 = "text-bg-light";
-
   const [click, setClick] = useState(0);
   const [score, setScore] = useState(0);
   const [shape, setShape] = useState(-1);
@@ -55,84 +53,94 @@ function App() {
   useEffect(() => {
     window.addEventListener("keydown", (event) => {
       if (event.code === "ArrowLeft") setClick(1);
-      else if (event.code === "ArrowRight") setClick(2);
-      else if (event.code === "Space") setClick(3);
+      else if (event.code === "Enter") setClick(2);
+      else if (event.code === "ArrowRight") setClick(3);
       else if (event.code === "ArrowDown") setClick(4);
+      else if (event.code === "Space") setClick(5);
     });
   }, []);
 
   return (
-    <div id="container">
-      <div id="header">
-        <header id="header-title" className={`${class1} text-uppercase`}>
-          <span>Tetris</span>
+    <>
+      <div id="item1">
+        <header id="header" className={`text-bg-light text-uppercase`}>
+          <span>INFORMACJE O GRZE</span>
         </header>
-        <header id="header-image" className={class1}>
+      </div>
+      <div id="item2">
+        <header id="header" className={`text-bg-light text-uppercase`}>
+          <span>Tetris</span>
           <img src="src/images/tetris.png" alt="tetris" />
         </header>
-      </div>
-      <div id="rest">
-        <Tetris
-          className="pixel"
-          onScoreChange={handleScoreChange}
-          onShapeChange={handleShapeChange}
-          start={start}
-        ></Tetris>
-        <div id="sidebar">
-          <div id="score">
-            <span>PUNKTY</span>
-            <span>{score}</span>
-          </div>
-          <div id="next">
-            <span>NASTĘPNY BLOK</span>
-            <div id="next-block">
-              <img
-                src={
-                  shape !== -1
-                    ? `src/images/Shapes/${shapes[shapeRef.current]}.png`
-                    : ""
-                }
-              ></img>
+        <div id="rest">
+          <Tetris
+            className="pixel"
+            onScoreChange={handleScoreChange}
+            onShapeChange={handleShapeChange}
+            start={start}
+          ></Tetris>
+          <div id="sidebar">
+            <div id="score">
+              <span>PUNKTY</span>
+              <span>{score}</span>
             </div>
-          </div>
-          <div id="buttons">
-            <div id="up-button">
-              <img src="src/images/up.png"></img>
+            <div id="next">
+              <span>NASTĘPNY BLOK</span>
+              <div id="next-block">
+                <img
+                  src={
+                    shape !== -1
+                      ? `src/images/Shapes/${shapes[shapeRef.current]}.png`
+                      : ""
+                  }
+                ></img>
+              </div>
             </div>
-            <div id="middle-buttons">
-              {click != 1 ? (
-                <img src="src/images/left.png"></img>
+            <div id="buttons">
+              <div id="up-button">
+                <img src="src/images/up.png"></img>
+              </div>
+              <div id="middle-buttons">
+                {click != 1 ? (
+                  <img src="src/images/left.png"></img>
+                ) : (
+                  <img src="src/images/left.png" className="shadow"></img>
+                )}
+                {click != 2 ? (
+                  <img src="src/images/push.png"></img>
+                ) : (
+                  <img src="src/images/push.png" className="shadow"></img>
+                )}
+                {click != 3 ? (
+                  <img src="src/images/right.png"></img>
+                ) : (
+                  <img src="src/images/right.png" className="shadow"></img>
+                )}
+              </div>
+
+              <div id="bottom-button">
+                {click != 4 ? (
+                  <img src="src/images/down.png"></img>
+                ) : (
+                  <img src="src/images/down.png" className="shadow"></img>
+                )}
+              </div>
+            </div>
+            <div id="turn-button">
+              {click != 5 ? (
+                <img src="src/images/turn_right.png"></img>
               ) : (
-                <img src="src/images/left.png" className="shadow"></img>
-              )}
-              <img src="src/images/push.png"></img>
-              {click != 2 ? (
-                <img src="src/images/right.png"></img>
-              ) : (
-                <img src="src/images/right.png" className="shadow"></img>
+                <img src="src/images/turn_right.png" className="shadow"></img>
               )}
             </div>
-            <div id="bottom-button">
-              {click != 4 ? (
-                <img src="src/images/down.png"></img>
-              ) : (
-                <img src="src/images/down.png" className="shadow"></img>
-              )}
-            </div>
+            <button id="start" className="btn btn-light" onClick={clickStart}>
+              START
+            </button>
           </div>
-          <div id="turn-button">
-            {click != 3 ? (
-              <img src="src/images/turn_right.png"></img>
-            ) : (
-              <img src="src/images/turn_right.png" className="shadow"></img>
-            )}
-          </div>
-          <button id="start" className="btn btn-light" onClick={clickStart}>
-            START
-          </button>
         </div>
       </div>
-    </div>
+      <div className="item"></div>
+    </>
   );
 }
 

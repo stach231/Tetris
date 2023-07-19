@@ -77,15 +77,19 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
     let i = 230;
     let tribe = 0;
     const over = setInterval(() => {
-      const pixel = [...pixelsColorsRef.current];
-      if (tribe === 0) pixel[i][0] = "#777";
-      else if (tribe === 1) pixel[i][0] = "#fff";
-      setPixelColors(pixel);
-      i--;
-      if (i === -1 && tribe === 0) {
-        i = 230;
-        tribe = 1;
-      } else if (i === -1 && tribe === 1) {
+      if (gameOverRef.current === 1 || gameOverRef.current === 2) {
+        const pixel = [...pixelsColorsRef.current];
+        if (tribe === 0) pixel[i][0] = "#777";
+        else if (tribe === 1) pixel[i][0] = "#fff";
+        setPixelColors(pixel);
+        i--;
+        if (i === -1 && tribe === 0) {
+          i = 230;
+          tribe = 1;
+        } else if (i === -1 && tribe === 1) {
+          clearInterval(over);
+        }
+      } else {
         clearInterval(over);
       }
     }, 5);
@@ -703,6 +707,15 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
   }, [test]);
 
   useEffect(() => {
+    const bonus = setInterval(() => {
+      scoreRef.current += 10;
+    }, 60000);
+    return () => {
+      clearInterval(bonus);
+    };
+  }, [start]);
+
+  useEffect(() => {
     console.log(`Start Game ${test} Start: ${start}`);
     if (test === 0) {
       console.log(`Test równe ${test}`);
@@ -720,6 +733,7 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
       blockScreenRef.current = createBlock();
       nextBlockScreenRef.current = createBlock();
       scoreRef.current = 0;
+      gameOverRef.current = 0;
     }
   }, [start]);
 
