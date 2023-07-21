@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Tetris from "./components/Tetris";
+import Info from "./components/Info";
 
 function App() {
   const [click, setClick] = useState(0);
@@ -8,6 +9,13 @@ function App() {
   const [shape, setShape] = useState(-1);
   const shapeRef = useRef(shape);
   const [start, setStart] = useState(false);
+  const startRef = useRef(start);
+  const [results, setResults] = useState<[number, Date][]>([]);
+  const resultsRef = useRef(results);
+  const [isStart, setIsStart] = useState(false);
+  const isStartRef = useRef(isStart);
+  const [isEnd, setIsEnd] = useState(false);
+  const isEndRef = useRef(isEnd);
 
   const shapes = [
     "0-blue",
@@ -34,6 +42,10 @@ function App() {
     "5-green",
     "5-red",
     "5-yellow",
+    "6-blue",
+    "6-green",
+    "6-red",
+    "6-yellow",
   ];
 
   const handleScoreChange = (score: number) => {
@@ -46,25 +58,62 @@ function App() {
     console.log(`Shape: Atr: ${shape1} Ref: ${shapeRef.current}`);
   };
 
+  const handleResults = (result: [number, Date]) => {
+    console.log(result);
+    setResults((prevResult) => (prevResult = [...prevResult, result]));
+    resultsRef.current = [...results, result];
+    console.log(`Tu jest wynik: ${resultsRef.current} |${results}|`);
+  };
+
+  const handeIsEnd = (end: boolean) => {
+    setIsEnd(end);
+    isEndRef.current = end;
+    if (end) {
+      setShape(-1);
+    }
+  };
+
   const clickStart = () => {
-    start === false ? setStart(true) : setStart(false);
+    setStart((prevStart) => !prevStart);
+    setIsEnd(false);
+    isEndRef.current = false;
+    startRef.current === false
+      ? (startRef.current = true)
+      : (startRef.current = false);
+    isStartRef.current = true;
+    console.log(`START: ${start} IsStart: ${isStartRef.current}`);
+  };
+
+  const event1 = (event: KeyboardEvent) => {
+    event.preventDefault();
+    if (event.code === "ArrowLeft") setClick(1);
+    else if (event.code === "Enter") setClick(2);
+    else if (event.code === "ArrowRight") setClick(3);
+    else if (event.code === "ArrowDown") setClick(4);
+    else if (event.code === "Space") setClick(5);
+  };
+
+  const deleteResult = (index: number) => {
+    setResults((prevResults) => (prevResults = prevResults.splice(index, 1)));
+    console.log("Usunięto");
   };
 
   useEffect(() => {
-    window.addEventListener("keydown", (event) => {
-      if (event.code === "ArrowLeft") setClick(1);
-      else if (event.code === "Enter") setClick(2);
-      else if (event.code === "ArrowRight") setClick(3);
-      else if (event.code === "ArrowDown") setClick(4);
-      else if (event.code === "Space") setClick(5);
-    });
-  }, []);
+    console.log(`isEnd: ${isEnd}`);
+    if (!isEnd) {
+      window.addEventListener("keydown", event1);
+    }
+    return () => {
+      window.removeEventListener("keydown", event1);
+    };
+  }, [start]);
 
   return (
     <>
       <div id="item1">
         <header id="header" className={`text-bg-light text-uppercase`}>
           <span>INFORMACJE O GRZE</span>
+          <Info></Info>
         </header>
       </div>
       <div id="item2">
@@ -77,19 +126,24 @@ function App() {
             className="pixel"
             onScoreChange={handleScoreChange}
             onShapeChange={handleShapeChange}
-            start={start}
+            onResultChange={handleResults}
+            start={startRef.current}
+            isStart={isStartRef.current}
+            onIsEndChange={handeIsEnd}
           ></Tetris>
           <div id="sidebar">
             <div id="score">
               <span>PUNKTY</span>
-              <span>{score}</span>
+              <span>{isStartRef.current ? score : ""}</span>
             </div>
             <div id="next">
               <span>NASTĘPNY BLOK</span>
               <div id="next-block">
                 <img
                   src={
-                    shape !== -1
+                    shapeRef.current !== -1 &&
+                    !isEndRef.current &&
+                    isStartRef.current
                       ? `src/images/Shapes/${shapes[shapeRef.current]}.png`
                       : ""
                   }
@@ -139,7 +193,45 @@ function App() {
           </div>
         </div>
       </div>
-      <div className="item"></div>
+      <div id="item1">
+        <header id="header" className={`text-bg-light text-uppercase`}>
+          <span>WYNIKI</span>
+        </header>
+        <li id="li-title">
+          <div className="group">
+            <div>
+              <span>Nr</span>
+            </div>
+            <div>
+              <span>Punkty</span>
+            </div>
+            <div>
+              <span>Data gry</span>
+            </div>
+          </div>
+        </li>
+        <ul>
+          {results.map((item, index) => (
+            <li className="list-group-item">
+              <div className="group">
+                <div>
+                  <span>{`${index + 1}.`}</span>
+                </div>
+                <div>
+                  <span>{item[0]}</span>
+                </div>
+                <div>
+                  <span>{item[1].toLocaleString()}</span>
+                </div>
+                <button
+                  className="btn-close"
+                  onClick={() => deleteResult(index)}
+                ></button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </>
   );
 }

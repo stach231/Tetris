@@ -9,8 +9,11 @@ let block = 0;
 interface Props {
   className: string;
   start: boolean;
+  isStart: boolean;
+  onIsEndChange: (end: boolean) => void;
   onScoreChange: (score: number) => void;
   onShapeChange: (shape: number) => void;
+  onResultChange: (result: [number, Date]) => void;
 }
 
 class Block {
@@ -29,7 +32,15 @@ class Block {
   }
 }
 
-const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
+const Tetris = ({
+  className,
+  start,
+  isStart,
+  onScoreChange,
+  onShapeChange,
+  onResultChange,
+  onIsEndChange,
+}: Props) => {
   const [pixelsColors, setPixelColors] = useState<
     [string, number, number, number][]
   >([]);
@@ -48,6 +59,9 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
   const [combo, setCombo] = useState(0);
   const comboRef = useRef(combo);
   const [period, setPeriod] = useState(0);
+  const [remove, setRemove] = useState(false);
+  const removeRef = useRef(remove);
+  const isStartRef = useRef(isStart);
   const [minY, setMinY] = useState<number[][]>([
     [-11],
     [-11],
@@ -73,9 +87,92 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
     pixelsColorsRef.current = newPixelsColors;
   }
 
+  const event = (event: KeyboardEvent) => {
+    event.preventDefault();
+    if (event.code === "ArrowLeft") {
+      moveBlock(-1);
+    } else if (event.code === "ArrowRight") {
+      moveBlock(1);
+    } else if (event.code === "Space") {
+      rotateBlock();
+    } else if (event.code === "ArrowDown") {
+      setPeriod(100);
+    } else if (event.code === "Enter") {
+      pushBlock();
+    }
+  };
+
+  const upEvent = () => setPeriod(400);
+
+  function startGame() {
+    const shapes = [
+      [
+        [0, 0],
+        [-1, 0],
+        [1, 0],
+        [2, 0],
+      ],
+      [
+        [0, 0],
+        [-1, 0],
+        [-2, 0],
+        [0, -1],
+      ],
+      [
+        [0, 0],
+        [-1, 0],
+        [-2, 0],
+        [0, 1],
+      ],
+      [
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, -1],
+      ],
+      [
+        [0, 0],
+        [-1, 0],
+        [-1, -1],
+        [0, 1],
+      ],
+      [
+        [0, 0],
+        [0, 1],
+        [1, 1],
+        [1, 0],
+      ],
+    ];
+
+    let blockScreen: Block = createBlock();
+
+    console.log("eventListener");
+
+    removeRef.current =
+      removeRef.current === true
+        ? (removeRef.current = false)
+        : (removeRef.current = true);
+
+    blockScreenRef.current = blockScreen;
+
+    return blockScreen;
+  }
+
   function playGameOver() {
     let i = 230;
     let tribe = 0;
+    const date = new Date();
+    const bool = true;
+    const result1: [number, Date] = [scoreRef.current, date];
+    console.log(`On1: ${bool} On2: ${result1}`);
+    onIsEndChange(bool);
+    onResultChange(result1);
+    console.log(`ScoreRef Koniec Gry: ${scoreRef.current}`);
+    removeRef.current =
+      removeRef.current === true
+        ? (removeRef.current = false)
+        : (removeRef.current = true);
+
     const over = setInterval(() => {
       if (gameOverRef.current === 1 || gameOverRef.current === 2) {
         const pixel = [...pixelsColorsRef.current];
@@ -153,6 +250,12 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
         [1, 1],
         [1, 0],
       ],
+      [
+        [0, 0],
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+      ],
     ];
 
     let color: string = "#fff";
@@ -166,7 +269,7 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
     } else {
       color = "#ff0";
     }
-    const drawShape = Math.floor(Math.random() * 6);
+    const drawShape = Math.floor(Math.random() * 7);
     const blockShape = shapes[drawShape];
     let x = 0;
     if (drawShape === 0) {
@@ -177,6 +280,8 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
       x = 4 - Math.floor(Math.random() * 10);
     } else if (drawShape === 4) {
       x = 5 - Math.floor(Math.random() * 10);
+    } else if (drawShape === 6) {
+      x = 4 - Math.floor(Math.random() * 9);
     }
 
     return new Block(color, x, blockShape, drawShape);
@@ -261,74 +366,6 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
     setShape(blockScreenRef.current);
     nextBlockScreenRef.current = createBlock();
     console.log(nextBlockScreenRef.current.color);
-  }
-
-  const event = (event: KeyboardEvent) => {
-    event.preventDefault();
-    if (event.code === "ArrowLeft") {
-      moveBlock(-1);
-    } else if (event.code === "ArrowRight") {
-      moveBlock(1);
-    } else if (event.code === "Space") {
-      rotateBlock();
-    } else if (event.code === "ArrowDown") {
-      setPeriod(100);
-    } else if (event.code === "Enter") {
-      pushBlock();
-    }
-  };
-
-  const upEvent = () => setPeriod(400);
-
-  function startGame() {
-    const shapes = [
-      [
-        [0, 0],
-        [-1, 0],
-        [1, 0],
-        [2, 0],
-      ],
-      [
-        [0, 0],
-        [-1, 0],
-        [-2, 0],
-        [0, -1],
-      ],
-      [
-        [0, 0],
-        [-1, 0],
-        [-2, 0],
-        [0, 1],
-      ],
-      [
-        [0, 0],
-        [0, 1],
-        [1, 0],
-        [1, -1],
-      ],
-      [
-        [0, 0],
-        [-1, 0],
-        [-1, -1],
-        [0, 1],
-      ],
-      [
-        [0, 0],
-        [0, 1],
-        [1, 1],
-        [1, 0],
-      ],
-    ];
-
-    let blockScreen: Block = createBlock();
-
-    window.addEventListener("keydown", event);
-
-    window.addEventListener("keyup", upEvent);
-
-    blockScreenRef.current = blockScreen;
-
-    return blockScreen;
   }
 
   function checkLine() {
@@ -685,21 +722,33 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
   }, [blockScreenRef.current?.shape]);
 
   useEffect(() => {
-    console.log("Play Start");
-    window.removeEventListener;
-    const play = setInterval(() => {
-      if (gameOverRef.current === 0) {
-        moveBlock(0);
-      } else if (gameOverRef.current === 1) {
-        playGameOver();
-        window.removeEventListener;
-        gameOverRef.current = 2;
-      }
-    }, period);
+    console.log(`Rem: ${removeRef.current}`);
+    if (removeRef.current) {
+      window.addEventListener("keydown", event);
+      window.addEventListener("keyup", upEvent);
+    }
     return () => {
-      console.log("Play Return");
-      clearInterval(play);
+      window.removeEventListener("keydown", event);
+      window.removeEventListener("keyup", upEvent);
     };
+  }, [removeRef.current]);
+
+  useEffect(() => {
+    if (isStart) {
+      console.log("Play Start");
+      const play = setInterval(() => {
+        if (gameOverRef.current === 0) {
+          moveBlock(0);
+        } else if (gameOverRef.current === 1) {
+          playGameOver();
+          gameOverRef.current = 2;
+        }
+      }, period);
+      return () => {
+        console.log("Play Return");
+        clearInterval(play);
+      };
+    }
   }, [period]);
 
   useEffect(() => {
@@ -716,24 +765,33 @@ const Tetris = ({ className, start, onScoreChange, onShapeChange }: Props) => {
   }, [start]);
 
   useEffect(() => {
+    gameOverRef.current;
+  });
+
+  useEffect(() => {
     console.log(`Start Game ${test} Start: ${start}`);
-    if (test === 0) {
-      console.log(`Test równe ${test}`);
-      setTest((prevTest) => prevTest + 1);
-      setUpPixelColors();
-      return () => {
+    if (isStart)
+      if (test === 0) {
+        console.log(`Test równe ${test}`);
+        setTest((prevTest) => prevTest + 1);
+        setUpPixelColors();
+
         console.log(`Return ${testRef.current}`);
         setShape(startGame());
         setPeriod(400);
-      };
-    } else {
+      } else {
+        setUpPixelColors();
+        minYRef.current = minYRef.current.map((item) => (item = [-11]));
+        minYRef.current.forEach((item) => console.log(`Poprawka: ${item}`));
+        blockScreenRef.current = createBlock();
+        nextBlockScreenRef.current = createBlock();
+        scoreRef.current = 0;
+        gameOverRef.current = 0;
+        removeRef.current = true;
+      }
+    else {
       setUpPixelColors();
-      minYRef.current = minYRef.current.map((item) => (item = [-11]));
-      minYRef.current.forEach((item) => console.log(`Poprawka: ${item}`));
-      blockScreenRef.current = createBlock();
-      nextBlockScreenRef.current = createBlock();
-      scoreRef.current = 0;
-      gameOverRef.current = 0;
+      console.log(`IsStart: ${isStart} ${isStartRef.current}`);
     }
   }, [start]);
 
