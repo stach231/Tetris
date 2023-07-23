@@ -4,7 +4,7 @@ import "../App.css";
 const Info = () => {
   return (
     <div id="text">
-      <span>Sterowanie:</span>
+      <span>Sterowanie (KLAWIATURA):</span>
       <span>
         <b>Strzałka w lewo</b> - przesunięcie bloku o jeden piksel w lewo
       </span>
@@ -67,8 +67,8 @@ const Info = () => {
         <br />
         Zadaniem gracza jest układanie tetrimino na planszy (poprzez
         wykorzystanie rotacji i przesuwanie klocków w poziomie) w taki sposób,
-        aby kwadraty składające się na nie utworzyły wiersz{" "}
-        <b>na całej szerokości prostokąta</b>.
+        aby kwadraty składające się na nie utworzyły wiersz o jednolitym kolorze{" "}
+        <b>na całej szerokości prostokąta </b>.
         <br />
         <br /> W takiej sytuacji wiersz ten zostaje usunięty, a pozostałe klocki
         opadają w kierunku dna, tworząc więcej przestrzeni dla następnych
@@ -83,6 +83,31 @@ const Info = () => {
           <i>tetris</i>
         </b>
         ”.
+      </span>
+      <br />
+      <br />
+      <span id="rules">Punktacja</span>
+      <span>
+        Liczba otrzymanych punktów zależy od liczby wierszy zdjętych w wyniku
+        opadnięcia pojedynczego bloku. <br />
+        <br />
+        Tak więc za 1 wiersz przydzielane jest 100 punktów, za 2 wiersze 250
+        punktów, za 3 wiersze 450 punktów, a za "tetris" 700 punktów. <br />
+        <br />
+        Liczba ta może zostać zwiększona w zależności od tego ile wierszy
+        zostało usuniętych przez poprzedni blok, tzw. "<i>combo</i>". <br />
+        <br />
+        Jedno combo jest warte 50 punktów.
+        <br />
+        <br /> Liczone są od pierwszego bloku z rzędu, który zdjął wiersze.
+        <br />
+        <br />
+        Ponadto graczowi przydzielane jest bonusowe 10 punktów za każdą
+        rozegraną minutę.
+      </span>
+      <br />
+      <span id="rules">
+        <b>Miłej rozgrywki!</b>
       </span>
     </div>
   );

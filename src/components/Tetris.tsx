@@ -10,6 +10,7 @@ interface Props {
   className: string;
   start: boolean;
   isStart: boolean;
+  isEnd: boolean;
   onIsEndChange: (end: boolean) => void;
   onScoreChange: (score: number) => void;
   onShapeChange: (shape: number) => void;
@@ -36,6 +37,7 @@ const Tetris = ({
   className,
   start,
   isStart,
+  isEnd,
   onScoreChange,
   onShapeChange,
   onResultChange,
@@ -49,9 +51,6 @@ const Tetris = ({
   const oldCoordsRef = useRef<[number, number][]>([]);
   const blockScreenRef = useRef<Block | null>(null);
 
-  const [shape, setShape] = useState(createBlock());
-  const [nextShape, setNextShape] = useState(createBlock());
-  const nextBlockScreenRef = useRef<Block>(nextShape);
   const [gameOver, setGameOver] = useState(0);
   const gameOverRef = useRef(gameOver);
   const [score, setScore] = useState(0);
@@ -76,6 +75,9 @@ const Tetris = ({
     [-11],
   ]);
   const minYRef = useRef(minY);
+  const [shape, setShape] = useState<Block | null>(createBlock());
+  const [nextShape, setNextShape] = useState<Block | null>(createBlock());
+  const nextBlockScreenRef = useRef<Block | null>(nextShape);
 
   function setUpPixelColors() {
     const newPixelsColors: [string, number, number, number][] = [];
@@ -144,7 +146,7 @@ const Tetris = ({
       ],
     ];
 
-    let blockScreen: Block = createBlock();
+    let blockScreen: Block | null = createBlock();
 
     console.log("eventListener");
 
@@ -164,8 +166,15 @@ const Tetris = ({
     const date = new Date();
     const bool = true;
     const result1: [number, Date] = [scoreRef.current, date];
+    blockScreenRef.current = null;
+    setNextShape(null);
+    console.log(`NextB: ${nextBlockScreenRef}`);
+    setShape(null);
+    nextBlockScreenRef.current = null;
+
     console.log(`On1: ${bool} On2: ${result1}`);
-    onIsEndChange(bool);
+    onShapeChange(-1);
+    onIsEndChange(true);
     onResultChange(result1);
     console.log(`ScoreRef Koniec Gry: ${scoreRef.current}`);
     removeRef.current =
@@ -284,6 +293,12 @@ const Tetris = ({
       x = 4 - Math.floor(Math.random() * 9);
     }
 
+    let flag = true;
+
+    if (pixelsColorsRef.current.length === 0) {
+      setUpPixelColors();
+    }
+
     return new Block(color, x, blockShape, drawShape);
   }
 
@@ -365,7 +380,7 @@ const Tetris = ({
     blockScreenRef.current = nextBlockScreenRef.current;
     setShape(blockScreenRef.current);
     nextBlockScreenRef.current = createBlock();
-    console.log(nextBlockScreenRef.current.color);
+    console.log(nextBlockScreenRef.current!.color);
   }
 
   function checkLine() {
@@ -473,10 +488,10 @@ const Tetris = ({
 
             setUpBlock(0);
             checkLine();
-            blockScreenRef.current = nextBlockScreenRef.current;
+            blockScreenRef.current = nextBlockScreenRef!.current;
             setShape(blockScreenRef.current);
             nextBlockScreenRef.current = createBlock();
-            console.log(nextBlockScreenRef.current.color);
+            console.log(nextBlockScreenRef.current!.color);
           }
           if (flag) {
             blockScreenRef.current!.y--;
@@ -496,7 +511,7 @@ const Tetris = ({
         blockScreenRef.current = nextBlockScreenRef.current;
         setShape(blockScreenRef.current);
         nextBlockScreenRef.current = createBlock();
-        console.log(nextBlockScreenRef.current.color);
+        console.log(nextBlockScreenRef.current!.color);
         flag = true;
       }
     } else if (direct === 1) {
@@ -759,6 +774,7 @@ const Tetris = ({
     const bonus = setInterval(() => {
       scoreRef.current += 10;
     }, 60000);
+
     return () => {
       clearInterval(bonus);
     };

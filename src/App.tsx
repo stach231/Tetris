@@ -66,8 +66,11 @@ function App() {
   };
 
   const handeIsEnd = (end: boolean) => {
+    console.log(`Boolean end: ${end}`);
+    console.log(`Changed end: ${isEnd}`);
     setIsEnd(end);
     isEndRef.current = end;
+    console.log(`Changed end: ${isEnd}`);
     if (end) {
       setShape(-1);
     }
@@ -86,27 +89,37 @@ function App() {
 
   const event1 = (event: KeyboardEvent) => {
     event.preventDefault();
-    if (event.code === "ArrowLeft") setClick(1);
-    else if (event.code === "Enter") setClick(2);
-    else if (event.code === "ArrowRight") setClick(3);
-    else if (event.code === "ArrowDown") setClick(4);
-    else if (event.code === "Space") setClick(5);
+    console.log(`isEnd: ${isEnd}`);
+    if (!isEndRef.current) {
+      if (event.code === "ArrowLeft") setClick(1);
+      else if (event.code === "Enter") setClick(2);
+      else if (event.code === "ArrowRight") setClick(3);
+      else if (event.code === "ArrowDown") setClick(4);
+      else if (event.code === "Space") setClick(5);
+    } else {
+      setClick(0);
+    }
   };
 
   const deleteResult = (index: number) => {
-    setResults((prevResults) => (prevResults = prevResults.splice(index, 1)));
-    console.log("Usunięto");
+    setResults((prevResults) =>
+      prevResults.filter((item, ind) => ind !== index)
+    );
   };
 
   useEffect(() => {
     console.log(`isEnd: ${isEnd}`);
-    if (!isEnd) {
+    if (!isEndRef.current) {
       window.addEventListener("keydown", event1);
     }
     return () => {
       window.removeEventListener("keydown", event1);
     };
   }, [start]);
+
+  useEffect(() => {
+    setClick(0);
+  }, [isEndRef.current]);
 
   return (
     <>
@@ -129,6 +142,7 @@ function App() {
             onResultChange={handleResults}
             start={startRef.current}
             isStart={isStartRef.current}
+            isEnd={isEndRef.current}
             onIsEndChange={handeIsEnd}
           ></Tetris>
           <div id="sidebar">
@@ -225,7 +239,9 @@ function App() {
                 </div>
                 <button
                   className="btn-close"
-                  onClick={() => deleteResult(index)}
+                  onClick={() => {
+                    deleteResult(index), false;
+                  }}
                 ></button>
               </div>
             </li>
