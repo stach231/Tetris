@@ -1,4 +1,3 @@
-import React from "react";
 import "../App.css";
 
 const Info = () => {
@@ -6,19 +5,19 @@ const Info = () => {
     <div id="text">
       <span>Sterowanie (KLAWIATURA):</span>
       <span>
-        <b>Strzałka w lewo</b> - przesunięcie bloku o jeden piksel w lewo
+        <b>Strzałka w lewo</b> - przesunięcie klocka o jeden piksel w lewo
       </span>
       <span>
-        <b>Strzałka w prawo</b> - przesunięcie bloku o jeden piksel w prawo
+        <b>Strzałka w prawo</b> - przesunięcie klocka o jeden piksel w prawo
       </span>
       <span>
-        <b>Strzałka w dół</b> - przyspieszenie opadania bloku
+        <b>Strzałka w dół</b> - przyspieszenie opadania klocka
       </span>
       <span>
-        <b>Spacja</b> - obrót bloku w prawo
+        <b>Spacja</b> - obrót klocka w prawo
       </span>
       <span>
-        <b>Enter</b> - opadnięcie bloku na sam dół
+        <b>Enter</b> - opadnięcie klocka na sam dół
       </span>
       <br />
       <br />
@@ -46,7 +45,8 @@ const Info = () => {
         11 kolumn).
         <br />
         <br /> W trakcie gry, pośrodku górnej krawędzi planszy, pojawiają się
-        pojedynczo klocki złożone z czterech małych kwadratów nazywanych też{" "}
+        pojedynczo <b>klocki</b> złożone z czterech małych kwadratów nazywanych
+        też{" "}
         <b>
           <i>blokami</i>
         </b>
@@ -89,17 +89,18 @@ const Info = () => {
       <span id="rules">Punktacja</span>
       <span>
         Liczba otrzymanych punktów zależy od liczby wierszy zdjętych w wyniku
-        opadnięcia pojedynczego bloku. <br />
+        opadnięcia pojedynczego tetrimino. <br />
         <br />
         Tak więc za 1 wiersz przydzielane jest 100 punktów, za 2 wiersze 250
         punktów, za 3 wiersze 450 punktów, a za "tetris" 700 punktów. <br />
         <br />
         Liczba ta może zostać zwiększona w zależności od tego ile wierszy
-        zostało usuniętych przez poprzedni blok, tzw. "<i>combo</i>". <br />
+        zostało usuniętych przez poprzednie tetrimino, tzw. "<i>combo</i>".{" "}
+        <br />
         <br />
         Jedno combo jest warte 50 punktów.
         <br />
-        <br /> Liczone są od pierwszego bloku z rzędu, który zdjął wiersze.
+        <br /> Liczone są od pierwszego tetrimino z rzędu, które zdjęło wiersze.
         <br />
         <br />
         Ponadto graczowi przydzielane jest bonusowe 10 punktów za każdą

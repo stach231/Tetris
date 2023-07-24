@@ -14,7 +14,7 @@ function App() {
   const resultsRef = useRef(results);
   const [isStart, setIsStart] = useState(false);
   const isStartRef = useRef(isStart);
-  const [isEnd, setIsEnd] = useState(false);
+  const [isEnd, setIsEnd] = useState(true);
   const isEndRef = useRef(isEnd);
 
   const shapes = [
@@ -48,8 +48,8 @@ function App() {
     "6-yellow",
   ];
 
-  const handleScoreChange = (score: number) => {
-    setScore(score);
+  const handleScoreChange = (score1: number) => {
+    setScore(score1);
   };
 
   const handleShapeChange = (shape1: number) => {
@@ -65,7 +65,7 @@ function App() {
     console.log(`Tu jest wynik: ${resultsRef.current} |${results}|`);
   };
 
-  const handeIsEnd = (end: boolean) => {
+  const handleIsEnd = (end: boolean) => {
     console.log(`Boolean end: ${end}`);
     console.log(`Changed end: ${isEnd}`);
     setIsEnd(end);
@@ -108,7 +108,8 @@ function App() {
   };
 
   useEffect(() => {
-    console.log(`isEnd: ${isEnd}`);
+    setScore(0);
+    console.log(`App isEnd: ${isEnd}`);
     if (!isEndRef.current) {
       window.addEventListener("keydown", event1);
     }
@@ -143,7 +144,7 @@ function App() {
             start={startRef.current}
             isStart={isStartRef.current}
             isEnd={isEndRef.current}
-            onIsEndChange={handeIsEnd}
+            onIsEndChange={handleIsEnd}
           ></Tetris>
           <div id="sidebar">
             <div id="score">

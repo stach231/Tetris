@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useState } from "react";
 import Pixel from "./Pixel";
 
@@ -107,48 +107,7 @@ const Tetris = ({
   const upEvent = () => setPeriod(400);
 
   function startGame() {
-    const shapes = [
-      [
-        [0, 0],
-        [-1, 0],
-        [1, 0],
-        [2, 0],
-      ],
-      [
-        [0, 0],
-        [-1, 0],
-        [-2, 0],
-        [0, -1],
-      ],
-      [
-        [0, 0],
-        [-1, 0],
-        [-2, 0],
-        [0, 1],
-      ],
-      [
-        [0, 0],
-        [0, 1],
-        [1, 0],
-        [1, -1],
-      ],
-      [
-        [0, 0],
-        [-1, 0],
-        [-1, -1],
-        [0, 1],
-      ],
-      [
-        [0, 0],
-        [0, 1],
-        [1, 1],
-        [1, 0],
-      ],
-    ];
-
     let blockScreen: Block | null = createBlock();
-
-    console.log("eventListener");
 
     removeRef.current =
       removeRef.current === true
@@ -168,15 +127,12 @@ const Tetris = ({
     const result1: [number, Date] = [scoreRef.current, date];
     blockScreenRef.current = null;
     setNextShape(null);
-    console.log(`NextB: ${nextBlockScreenRef}`);
     setShape(null);
     nextBlockScreenRef.current = null;
 
-    console.log(`On1: ${bool} On2: ${result1}`);
     onShapeChange(-1);
     onIsEndChange(true);
     onResultChange(result1);
-    console.log(`ScoreRef Koniec Gry: ${scoreRef.current}`);
     removeRef.current =
       removeRef.current === true
         ? (removeRef.current = false)
@@ -332,7 +288,6 @@ const Tetris = ({
   }
 
   function pushBlock() {
-    minYRef.current.forEach((item) => console.log(item));
     let minDiff = 22;
     const oldCoords: [number, number][] = [];
     blockScreenRef.current!.shape.forEach((item) => {
@@ -380,7 +335,6 @@ const Tetris = ({
     blockScreenRef.current = nextBlockScreenRef.current;
     setShape(blockScreenRef.current);
     nextBlockScreenRef.current = createBlock();
-    console.log(nextBlockScreenRef.current!.color);
   }
 
   function checkLine() {
@@ -418,8 +372,6 @@ const Tetris = ({
     scoreRef.current +=
       25 * (colors.length ** 2 + 3 * colors.length) + 50 * comboRef.current;
     comboRef.current += colors.length;
-
-    console.log("Wywołano setPixelColors");
 
     setPixelColors([...pixelsColorsRef.current]);
   }
@@ -491,7 +443,6 @@ const Tetris = ({
             blockScreenRef.current = nextBlockScreenRef!.current;
             setShape(blockScreenRef.current);
             nextBlockScreenRef.current = createBlock();
-            console.log(nextBlockScreenRef.current!.color);
           }
           if (flag) {
             blockScreenRef.current!.y--;
@@ -511,7 +462,6 @@ const Tetris = ({
         blockScreenRef.current = nextBlockScreenRef.current;
         setShape(blockScreenRef.current);
         nextBlockScreenRef.current = createBlock();
-        console.log(nextBlockScreenRef.current!.color);
         flag = true;
       }
     } else if (direct === 1) {
@@ -737,7 +687,6 @@ const Tetris = ({
   }, [blockScreenRef.current?.shape]);
 
   useEffect(() => {
-    console.log(`Rem: ${removeRef.current}`);
     if (removeRef.current) {
       window.addEventListener("keydown", event);
       window.addEventListener("keyup", upEvent);
@@ -750,7 +699,6 @@ const Tetris = ({
 
   useEffect(() => {
     if (isStart) {
-      console.log("Play Start");
       const play = setInterval(() => {
         if (gameOverRef.current === 0) {
           moveBlock(0);
@@ -760,45 +708,39 @@ const Tetris = ({
         }
       }, period);
       return () => {
-        console.log("Play Return");
         clearInterval(play);
       };
     }
   }, [period]);
 
   useEffect(() => {
-    console.log(`Początkowo: ${test}`);
-  }, [test]);
+    console.log(`isEnd ${isEnd} |${isStart}| |${isStartRef.current}|`);
+    if (isStart) {
+      const bonus = setInterval(() => {
+        scoreRef.current += 10;
+      }, 60000);
 
-  useEffect(() => {
-    const bonus = setInterval(() => {
-      scoreRef.current += 10;
-    }, 60000);
-
-    return () => {
-      clearInterval(bonus);
-    };
-  }, [start]);
+      return () => {
+        clearInterval(bonus);
+      };
+    }
+  }, [isEnd]);
 
   useEffect(() => {
     gameOverRef.current;
   });
 
   useEffect(() => {
-    console.log(`Start Game ${test} Start: ${start}`);
     if (isStart)
       if (test === 0) {
-        console.log(`Test równe ${test}`);
         setTest((prevTest) => prevTest + 1);
         setUpPixelColors();
 
-        console.log(`Return ${testRef.current}`);
         setShape(startGame());
         setPeriod(400);
       } else {
         setUpPixelColors();
         minYRef.current = minYRef.current.map((item) => (item = [-11]));
-        minYRef.current.forEach((item) => console.log(`Poprawka: ${item}`));
         blockScreenRef.current = createBlock();
         nextBlockScreenRef.current = createBlock();
         scoreRef.current = 0;
@@ -807,7 +749,6 @@ const Tetris = ({
       }
     else {
       setUpPixelColors();
-      console.log(`IsStart: ${isStart} ${isStartRef.current}`);
     }
   }, [start]);
 
