@@ -2,10 +2,6 @@ import { useEffect, useRef } from "react";
 import { useState } from "react";
 import Pixel from "./Pixel";
 
-const width = 11;
-const height = 21;
-let block = 0;
-
 interface Props {
   className: string;
   start: boolean;
@@ -31,7 +27,7 @@ class Block {
     this.shape = shape;
     this.shapeId = shapeId;
   }
-}
+} // parameters of the falling tetrimino
 
 const Tetris = ({
   className,
@@ -45,23 +41,19 @@ const Tetris = ({
 }: Props) => {
   const [pixelsColors, setPixelColors] = useState<
     [string, number, number, number][]
-  >([]);
-  const pixelsColorsRef = useRef(pixelsColors);
-  const [oldCoords, setOldCoords] = useState<[number, number][]>([]);
-  const oldCoordsRef = useRef<[number, number][]>([]);
-  const blockScreenRef = useRef<Block | null>(null);
+  >([]); // parameters of the pixels
+  const pixelsColorsRef = useRef(pixelsColors); // A reference to the parameters of the pixels
+  const [oldCoords, setOldCoords] = useState<[number, number][]>([]); // support table
+  const oldCoordsRef = useRef<[number, number][]>([]); // A reference to the support table
+  const blockScreenRef = useRef<Block | null>(null); // A reference to the falling tetrimino
+  const gameOverRef = useRef(0); // stage of the game
+  const scoreRef = useRef(0); // "score"
+  const comboRef = useRef(0); // "combo"
+  const [period, setPeriod] = useState(0); // velocity of the tetrimino
+  const removeRef = useRef(false); // variable to control the addition and removal of keyboard events
+  const isStartRef = useRef(isStart); // Is game running?
 
-  const [gameOver, setGameOver] = useState(0);
-  const gameOverRef = useRef(gameOver);
-  const [score, setScore] = useState(0);
-  const scoreRef = useRef(score);
-  const [combo, setCombo] = useState(0);
-  const comboRef = useRef(combo);
-  const [period, setPeriod] = useState(0);
-  const [remove, setRemove] = useState(false);
-  const removeRef = useRef(remove);
-  const isStartRef = useRef(isStart);
-  const [minY, setMinY] = useState<number[][]>([
+  const minYRef = useRef<number[][]>([
     [-11],
     [-11],
     [-11],
@@ -73,11 +65,8 @@ const Tetris = ({
     [-11],
     [-11],
     [-11],
-  ]);
-  const minYRef = useRef(minY);
-  const [shape, setShape] = useState<Block | null>(createBlock());
-  const [nextShape, setNextShape] = useState<Block | null>(createBlock());
-  const nextBlockScreenRef = useRef<Block | null>(nextShape);
+  ]); // A reference to the list of empty pixels adjacent to the top edge of colored pixels or the bottom edge of the board
+  const nextBlockScreenRef = useRef<Block | null>(createBlock());
 
   function setUpPixelColors() {
     const newPixelsColors: [string, number, number, number][] = [];
@@ -115,9 +104,9 @@ const Tetris = ({
         : (removeRef.current = true);
 
     blockScreenRef.current = blockScreen;
-
-    return blockScreen;
   }
+
+  // End animation
 
   function playGameOver() {
     let i = 230;
@@ -126,8 +115,6 @@ const Tetris = ({
     const bool = true;
     const result1: [number, Date] = [scoreRef.current, date];
     blockScreenRef.current = null;
-    setNextShape(null);
-    setShape(null);
     nextBlockScreenRef.current = null;
 
     onShapeChange(-1);
@@ -255,7 +242,27 @@ const Tetris = ({
       setUpPixelColors();
     }
 
+    blockShape.forEach((item) => {
+      if (item[1] + 11 < 11) {
+        const ind = (-(item[1] + 11) + 10) * 11 + item[0] + x + 5;
+        if (
+          !(
+            pixelsColorsRef.current[ind][0] === "#fff" ||
+            pixelsColorsRef.current[ind][1] !== 2
+          )
+        ) {
+          flag = false;
+        }
+      }
+    });
+
+    //if (flag) {
     return new Block(color, x, blockShape, drawShape);
+    //} else {
+    //  playGameOver();
+    //  //nextBlockScreenRef.current = createBlock();
+    //  return null;
+    //}
   }
 
   function setUpBlock(t: number) {
@@ -333,7 +340,6 @@ const Tetris = ({
     setUpBlock(0);
     checkLine();
     blockScreenRef.current = nextBlockScreenRef.current;
-    setShape(blockScreenRef.current);
     nextBlockScreenRef.current = createBlock();
   }
 
@@ -441,7 +447,6 @@ const Tetris = ({
             setUpBlock(0);
             checkLine();
             blockScreenRef.current = nextBlockScreenRef!.current;
-            setShape(blockScreenRef.current);
             nextBlockScreenRef.current = createBlock();
           }
           if (flag) {
@@ -460,7 +465,6 @@ const Tetris = ({
         });
         checkLine();
         blockScreenRef.current = nextBlockScreenRef.current;
-        setShape(blockScreenRef.current);
         nextBlockScreenRef.current = createBlock();
         flag = true;
       }
@@ -714,7 +718,6 @@ const Tetris = ({
   }, [period]);
 
   useEffect(() => {
-    console.log(`isEnd ${isEnd} |${isStart}| |${isStartRef.current}|`);
     if (isStart) {
       const bonus = setInterval(() => {
         scoreRef.current += 10;
@@ -727,16 +730,11 @@ const Tetris = ({
   }, [isEnd]);
 
   useEffect(() => {
-    gameOverRef.current;
-  });
-
-  useEffect(() => {
     if (isStart)
       if (test === 0) {
         setTest((prevTest) => prevTest + 1);
         setUpPixelColors();
-
-        setShape(startGame());
+        startGame();
         setPeriod(400);
       } else {
         setUpPixelColors();
