@@ -2,14 +2,20 @@
 
 ## Overview
 
-Tetris is my private implementation of the world-famous puzzle game created in the 1980s by Alexei Pazhytnov written using the React JavaScript library and in TypeScript. It is also my first project in which I used React.
+Tetris is my private implementation of the world-famous puzzle game created in the 1980s by Alexei Pazhytnov written using the React JavaScript library and in TypeScript. 
+
+It is also my first project in which I used React.
 
 ## Control
 
 Left arrow - move the block one pixel to left
+
 Right arrow - move the block one pixel to right
+
 Down arrow - accelerate falling of the block
+
 Spacebar - rotate the block to the right
+
 Enter - drop the block to the very bottom
 
 ## Rules
