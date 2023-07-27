@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Tetris from "./components/Tetris";
 import Info from "./components/Info";
+import React from "react";
 
 function App() {
   const [click, setClick] = useState(0);

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useState } from "react";
 import Pixel from "./Pixel";
+import React from "react";
 
 interface Props {
   className: string;
