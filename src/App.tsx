@@ -3,6 +3,8 @@ import "./App.css";
 import Tetris from "./components/Tetris";
 import Info from "./components/Info";
 
+// main component
+
 function App() {
   const [click, setClick] = useState(0);
   const [score, setScore] = useState(0);
