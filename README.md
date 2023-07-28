@@ -1,8 +1,18 @@
 ## Tetris
 
+## How to run
+
+1. Enter the system terminal
+2. Using the cd command, enter the address of the folder where the repository should be located
+3. Go back to GitHub, press the "Code" button and copy the address shown in the newly opened panel.
+4. Type "git clone 'copied link'" in the terminal and press enter.
+5. Type "cd Tetris"
+6. Type "npm install" and then "npm run dev".
+7. Copy the visible link starting with "http://localhost" and paste it into your browser
+
 ## Overview
 
-Tetris is my private implementation of the world-famous puzzle game created in the 1980s by Alexei Pazhytnov written using the React JavaScript library and in TypeScript. 
+Tetris is my private implementation of the world-famous puzzle game created in the 1980s by Alexei Pazhytnov written using the React JavaScript library and in TypeScript.
 
 It is also my first project in which I used React.
 
